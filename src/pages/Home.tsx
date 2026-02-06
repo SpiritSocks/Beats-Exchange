@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { Search, ShoppingCart, Play, Pause, SkipForward, SkipBack, Heart, MoreHorizontal, LayoutGrid, List } from "lucide-react";
+import { Search, ShoppingCart, Play, Pause, SkipForward, SkipBack, Heart, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -107,9 +107,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground font-sans overflow-hidden">
       <div className="fixed inset-0 pointer-events-none opacity-20 overflow-hidden">
-        <div className="absolute top-[-10%] left-[-5%] w-[400px] h-[400px] bg-primary rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary rounded-full blur-[120px] opacity-30" />
-        <div className="absolute top-1/4 left-1/2 w-[300px] h-[300px] border-[40px] border-primary rounded-full opacity-10 animate-spin-slow" />
+        <div className="absolute top-[-10%] left-[-5%] w-100 h-100 bg-primary rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-125 h-125 bg-primary rounded-full blur-[120px] opacity-30" />
+        <div className="absolute top-1/4 left-1/2 w-75 h-75 border-40 border-primary rounded-full opacity-10 animate-spin-slow" />
       </div>
 
       <div className="relative z-10 flex flex-col h-screen">
@@ -135,8 +135,8 @@ export default function Home() {
           <nav className="flex items-center gap-6">
             <ThemeToggle />
             <Button onClick={() => navigate("/explore")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:text-primary" data-testid="link-explore">Explore</Button>
-            <Button variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:text-primary" data-testid="link-producers">Producers</Button>
-            <Button className="font-bold uppercase text-xs tracking-widest px-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all" data-testid="button-sell">Start Selling</Button>
+            <Button onClick={() => navigate("/producers")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:text-primary" data-testid="link-producers">Producers</Button>
+            <Button className="font-bold uppercase text-xs tracking-widest px-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all" data-testid="button-sell">Start Selling</Button>
             <div className="relative">
               <ShoppingCart className="w-6 h-6" />
               <Badge className="absolute -top-2 -right-2 rounded-full w-5 h-5 flex items-center justify-center p-0 text-[10px] bg-primary border-2 border-foreground">3</Badge>
@@ -165,7 +165,7 @@ export default function Home() {
 
             <div>
               <h2 className="text-xs font-black uppercase tracking-[0.2em] mb-4 text-muted-foreground">Genres</h2>
-              <ScrollArea className="h-[300px]">
+              <ScrollArea className="h-75">
                 <div className="flex flex-wrap gap-2 pr-4">
                   {["Phonk", "Drill", "Trap", "Lo-fi", "Boom Bap", "R&B", "G-House", "Afrobeat"].map(genre => (
                     <Badge key={genre} variant="outline" className="rounded-none border-2 border-foreground/20 font-bold uppercase text-[10px] px-3 py-1 cursor-pointer hover:border-primary hover:text-primary transition-all">
@@ -197,9 +197,9 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <Card className="group relative rounded-none border-2 border-foreground bg-elevate-1 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:translate-y-[-2px] hover:shadow-[12px_12px_0px_0px_rgba(255,51,102,0.3)] transition-all cursor-pointer overflow-hidden" data-testid={`card-beat-${beat.id}`}>
+                  <Card className="group relative rounded-none border-2 border-foreground bg-elevate-1 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[12px_12px_0px_0px_rgba(255,51,102,0.3)] transition-all cursor-pointer overflow-hidden" data-testid={`card-beat-${beat.id}`}>
                     <div className="aspect-square relative overflow-hidden bg-muted">
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent z-10" />
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
                         <Button
                           size="icon"
@@ -240,7 +240,7 @@ export default function Home() {
 
         {/* Player Bar */}
         <footer className="h-24 border-t-4 border-primary bg-foreground text-background px-6 flex items-center gap-8 relative z-50">
-          <div className="flex items-center gap-4 w-[300px]">
+          <div className="flex items-center gap-4 w-75">
             <div className="w-16 h-16 bg-primary border-2 border-background shrink-0 overflow-hidden relative group">
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <Play className="w-4 h-4 fill-primary text-primary" />
@@ -282,7 +282,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="w-[300px] flex items-center justify-end gap-4">
+          <div className="w-75 flex items-center justify-end gap-4">
              <div className="flex items-center gap-2 w-32">
                 <Slider defaultValue={[80]} max={100} step={1} />
              </div>

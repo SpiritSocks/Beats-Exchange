@@ -8,6 +8,7 @@ import NotFound from "./pages/not-found";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import AllCategories from "./pages/AllCategories";
+import ProducerDirectory from "./pages/ProducerDirectory";
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
         <Route path="/" element={<Home />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/categories" element={<AllCategories />} />
+        <Route path="/producers" element={<ProducerDirectory />} />
         <Route path="*" element={<NotFound />} /> {/* Fallback to 404 */}
       </Routes>
     </BrowserRouter>
