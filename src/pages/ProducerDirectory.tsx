@@ -55,7 +55,7 @@ return (
                   <SelectItem value="trap">Trap</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" size="icon" className="w-12 h-12 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <Button variant="outline" size="icon" className="w-12 h-12 rounded-none border-2 border-foreground">
                 <SlidersHorizontal className="w-5 h-5" />
               </Button>
             </div>
@@ -66,8 +66,8 @@ return (
       <main className="max-w-7xl mx-auto px-6 py-12">
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-10">
-          {["All Creators", "Top Rated", "Trending", "Near You", "New Blood", "Verified"].map((filter) => (
+        <div className="flex flex-row justify-center gap-4 mb-10 ">
+          {["All Creators", "Top Rated", "Trending", "Old Guard", "New Blood", "Verified"].map((filter) => (
             <Badge 
               key={filter} 
               variant="outline" 
