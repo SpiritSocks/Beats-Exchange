@@ -132,7 +132,7 @@ return (
                 </div>
 
                 <div className="border-t-2 border-foreground grid grid-cols-4">
-                  <Button className="col-span-3 rounded-none h-12 font-black uppercase text-[10px] tracking-widest bg-foreground text-background hover:bg-primary hover:text-white transition-colors">
+                  <Button className="col-span-3 rounded-none h-12 font-black uppercase text-[10px] tracking-widest bg-foreground text-background hover:bg-primary hover:text-white transition-colors border-none">
                     View Catalog
                   </Button>
                   <Button variant="ghost" className="col-span-1 rounded-none h-12 border-l-2 border-foreground hover:bg-primary hover:text-white transition-colors">
