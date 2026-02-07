@@ -116,7 +116,7 @@ export default function Home() {
         <header className="px-6 py-4 flex items-center justify-between border-b border-border bg-background/50 backdrop-blur-xl">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <span className="text-xl font-black italic">B</span>
+              <span className="text-xl font-black italic text-background">B</span>
             </div>
             <h1 className="text-2xl font-black uppercase tracking-tighter italic">Beat Exchange</h1>
           </div>
@@ -134,9 +134,9 @@ export default function Home() {
 
           <nav className="flex items-center gap-6">
             <ThemeToggle />
-            <Button onClick={() => navigate("/explore")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:text-primary" data-testid="link-explore">Explore</Button>
-            <Button onClick={() => navigate("/producers")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:text-primary" data-testid="link-producers">Producers</Button>
-            <Button className="font-bold uppercase text-xs tracking-widest px-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all" data-testid="button-sell">Start Selling</Button>
+            <Button onClick={() => navigate("/explore")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:bg-primary hover:text-primary-foreground" data-testid="link-explore">Explore</Button>
+            <Button onClick={() => navigate("/producers")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:bg-primary hover:text-primary-foreground" data-testid="link-producers">Producers</Button>
+            <Button onClick={() => navigate("/auth")} className="font-bold uppercase text-xs tracking-widest px-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all" data-testid="button-sell">Sign in</Button>
             <div className="relative">
               <ShoppingCart className="w-6 h-6" />
               <Badge className="absolute -top-2 -right-2 rounded-full w-5 h-5 flex items-center justify-center p-0 text-[10px] bg-primary border-2 border-foreground">3</Badge>
@@ -163,18 +163,6 @@ export default function Home() {
               </div>
             </div>
 
-            <div>
-              <h2 className="text-xs font-black uppercase tracking-[0.2em] mb-4 text-muted-foreground">Genres</h2>
-              <ScrollArea className="h-75">
-                <div className="flex flex-wrap gap-2 pr-4">
-                  {["Phonk", "Drill", "Trap", "Lo-fi", "Boom Bap", "R&B", "G-House", "Afrobeat"].map(genre => (
-                    <Badge key={genre} variant="outline" className="rounded-none border-2 border-foreground/20 font-bold uppercase text-[10px] px-3 py-1 cursor-pointer hover:border-primary hover:text-primary transition-all">
-                      {genre}
-                    </Badge>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
           </aside>
 
           {/* Beat Grid */}
@@ -247,17 +235,17 @@ export default function Home() {
               </div>
             </div>
             <div className="truncate">
-              <h4 className="font-black text-sm uppercase tracking-tight truncate italic text-primary">LUNA ECLIPSE</h4>
+              <h4 className="font-black text-sm uppercase tracking-tight truncate italic text-background">LUNA ECLIPSE</h4>
               <p className="text-[10px] font-bold text-background/60 uppercase tracking-widest truncate">Vampire Inside</p>
             </div>
-            <Button variant="ghost" size="icon" className="hover:text-primary text-background/60 ml-auto"><Heart className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="icon" className="text-background/60 ml-auto"><Heart className="w-4 h-4 text-background" /></Button>
           </div>
 
           <div className="flex-1 flex flex-col items-center gap-2 max-w-2xl mx-auto">
             <div className="flex items-center gap-6">
               <Button variant="ghost" size="icon" className="hover:text-primary transition-colors"><SkipBack className="w-5 h-5 fill-current" /></Button>
-              <Button size="icon" className="w-12 h-12 rounded-full bg-primary text-foreground border-4 border-foreground hover:scale-110 transition-transform">
-                <Play className="w-6 h-6 fill-current ml-1" />
+              <Button size="icon" className="w-12 h-12 rounded-full bg-primary text-foreground border-2 border-background hover:scale-110 transition-transform">
+                <Play className="w-6 h-6 fill-background ml-1" />
               </Button>
               <Button variant="ghost" size="icon" className="hover:text-primary transition-colors"><SkipForward className="w-5 h-5 fill-current" /></Button>
             </div>
@@ -286,7 +274,7 @@ export default function Home() {
              <div className="flex items-center gap-2 w-32">
                 <Slider defaultValue={[80]} max={100} step={1} />
              </div>
-             <Button variant="ghost" size="icon" className="hover:text-primary text-background/60"><MoreHorizontal className="w-5 h-5" /></Button>
+             <Button variant="ghost" size="icon" className="hover:text-primary text-background/60"><MoreHorizontal className="w-5 h-5 text-background" /></Button>
           </div>
         </footer>
       </div>
