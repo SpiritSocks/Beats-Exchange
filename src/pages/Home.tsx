@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { Search, ShoppingCart, Play, Pause, SkipForward, SkipBack, Heart, MoreHorizontal } from "lucide-react";
+import { Search, ShoppingCart, Play, Pause, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,9 @@ export default function Home() {
   const [isSeeking, setIsSeeking] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [activeBeatId, setActiveBeatId] = useState<number | null>(null);
+  const [volume, setVolume] = useState(0.8);
+
+  const activeBeat = activeBeatId ? MOCK_BEATS.find((b) => b.id === activeBeatId) : null;
 
   const handlePlay = (beat: (typeof MOCK_BEATS)[number]) => {
     const audio = songAudioRef.current;
@@ -35,6 +38,13 @@ export default function Home() {
     if (activeBeatId === beat.id && !audio.paused) {
       audio.pause();
       setIsAudioPlaying(false);
+      return;
+    }
+
+    // if same beat but paused, just resume from current position
+    if (activeBeatId === beat.id && audio.paused) {
+      void audio.play();
+      setIsAudioPlaying(true);
       return;
     }
 
@@ -50,9 +60,16 @@ export default function Home() {
     setIsAudioPlaying(true);
   };
 
+  const togglePlayPause = () => {
+    if (!activeBeat) return;
+    handlePlay(activeBeat);
+  };
+
   useEffect(() => {
     const audio = songAudioRef.current;
     if (!audio) return;
+
+    audio.volume = volume;
 
     const handleLoaded = () => {
       setDuration(audio.duration || 0);
@@ -78,7 +95,7 @@ export default function Home() {
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [isSeeking]);
+  }, [isSeeking, volume]);
 
   const handleSeek = (value: number[]) => {
     const audio = songAudioRef.current;
@@ -234,19 +251,26 @@ export default function Home() {
               </div>
             </div>
             <div className="truncate">
-              <h4 className="font-black text-sm uppercase tracking-tight truncate italic text-background">LUNA ECLIPSE</h4>
-              <p className="text-[10px] font-bold text-background/60 uppercase tracking-widest truncate">Vampire Inside</p>
+              <h4 className="font-black text-sm uppercase tracking-tight truncate italic text-background">{activeBeat?.title ?? "—"}</h4>
+              <p className="text-[10px] font-bold text-background/60 uppercase tracking-widest truncate">{activeBeat?.producer ?? "—"}</p>
             </div>
             <Button variant="ghost" size="icon" className="text-background/60 ml-auto"><Heart className="w-4 h-4 text-background" /></Button>
           </div>
 
           <div className="flex-1 flex flex-col items-center gap-2 max-w-2xl mx-auto">
             <div className="flex items-center gap-6">
-              <Button variant="ghost" size="icon" className="hover:text-primary transition-colors"><SkipBack className="w-5 h-5 fill-current" /></Button>
-              <Button size="icon" className="w-12 h-12 rounded-full bg-primary text-foreground border-2 border-background hover:scale-110 transition-transform">
-                <Play className="w-6 h-6 fill-background ml-1" />
+              <Button
+                size="icon"
+                className="w-12 h-12 rounded-full bg-primary text-foreground border-2 border-background hover:scale-110 transition-transform disabled:opacity-50"
+                onClick={togglePlayPause}
+                disabled={!activeBeat}
+              >
+                {isAudioPlaying ? (
+                  <Pause className="w-6 h-6 fill-background" />
+                ) : (
+                  <Play className="w-6 h-6 fill-background ml-1" />
+                )}
               </Button>
-              <Button variant="ghost" size="icon" className="hover:text-primary transition-colors"><SkipForward className="w-5 h-5 fill-current" /></Button>
             </div>
             <div className="flex items-center gap-3 w-full text-[10px] font-black font-mono">
               <span>
@@ -271,9 +295,13 @@ export default function Home() {
 
           <div className="w-75 flex items-center justify-end gap-4">
              <div className="flex items-center gap-2 w-32">
-                <Slider defaultValue={[80]} max={100} step={1} />
+                <Slider
+                  value={[volume * 100]}
+                  max={100}
+                  step={1}
+                  onValueChange={(v) => setVolume((v[0] ?? 80) / 100)}
+                />
              </div>
-             <Button variant="ghost" size="icon" className="hover:text-primary text-background/60"><MoreHorizontal className="w-5 h-5 text-background" /></Button>
           </div>
         </footer>
       </div>
