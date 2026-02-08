@@ -87,7 +87,10 @@ export default function Producers() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.05 }}
             >
-              <Card className="group flex flex-col h-full rounded-none border-2 border-foreground bg-card shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(255,51,102,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden">
+              <Card
+                className="group flex flex-col h-full rounded-none border-2 border-foreground bg-card shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(255,51,102,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
+                onClick={() => navigate(`/producers/${producer.id}`)}
+              >
                 <div className="p-6 pt-10 flex-1">
                   <div className="flex items-center justify-center mb-6">
                     <div className="w-20 h-20 bg-primary border-4 border-primary flex items-center justify-center text-4xl font-black italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:bg-white group-hover:text-primary transition-colors">
@@ -127,7 +130,10 @@ export default function Producers() {
                 </div>
 
                 <div className="border-t-2 border-foreground grid grid-cols-1">
-                  <Button className="col-span-3 rounded-none h-12 font-black uppercase text-[10px] tracking-widest bg-primary text-black hover:text-primary hover:bg-white transition-colors border-none">
+                  <Button
+                    className="col-span-3 rounded-none h-12 font-black uppercase text-[10px] tracking-widest bg-primary text-black hover:text-primary hover:bg-white transition-colors border-none"
+                    onClick={(e) => { e.stopPropagation(); navigate(`/producers/${producer.id}`); }}
+                  >
                     View Catalog
                   </Button>
                 </div>

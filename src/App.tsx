@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import AllCategories from "./pages/AllCategories";
 import ProducerDirectory from "./pages/ProducerDirectory";
+import ProducerProfile from "./pages/ProducerProfile";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 
@@ -20,6 +21,7 @@ function Router() {
         <Route path="/explore" element={<Explore />} />
         <Route path="/categories" element={<AllCategories />} />
         <Route path="/producers" element={<ProducerDirectory />} />
+        <Route path="/producers/:id" element={<ProducerProfile />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/cart" element={<></>} />
