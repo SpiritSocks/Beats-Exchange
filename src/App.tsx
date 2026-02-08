@@ -10,6 +10,7 @@ import Explore from "./pages/Explore";
 import AllCategories from "./pages/AllCategories";
 import ProducerDirectory from "./pages/ProducerDirectory";
 import Auth from "./pages/Auth";
+import Profile from "./pages/Profile";
 
 function Router() {
   return (
@@ -20,6 +21,8 @@ function Router() {
         <Route path="/categories" element={<AllCategories />} />
         <Route path="/producers" element={<ProducerDirectory />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/cart" element={<></>} />
         <Route path="*" element={<NotFound />} /> {/* Fallback to 404 */}
       </Routes>
     </BrowserRouter>

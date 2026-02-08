@@ -14,7 +14,6 @@ const Auth = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In mockup mode, we just redirect
     navigate("/");
   };
 
