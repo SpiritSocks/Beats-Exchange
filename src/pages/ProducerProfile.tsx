@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, MessageSquare, MapPin, Play, Heart, Share2 } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Play, Heart, Share2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +38,7 @@ const ProducerProfile = () => {
           </Button>
 
           <div className="flex items-center gap-8">
-            <div className="w-32 h-32 bg-background border-4 border-foreground flex items-center justify-center text-6xl font-black italic shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="w-auto h-32 m-0 bg-background border-4 border-foreground flex items-center justify-center text-6xl font-black italic shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               {producer.name[0]}
             </div>
             <div className="flex flex-col">

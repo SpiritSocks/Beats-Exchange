@@ -10,10 +10,10 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import {useNavigate} from "react-router-dom";
 
 const MOCK_BEATS = [
-  { id: 1, title: "LUNA ECLIPSE", producer: "Vampire Inside", bpm: 140, key: "Am", genre: "Drill", price: "$29.99", path: "/luna-eclipse.mp3" },
-  { id: 2, title: "VOID RUNNER", producer: "Xiu Digital", bpm: 128, key: "Cm", genre: "Phonk", price: "$49.99", path: "/void-runner.mp3" },
-  { id: 3, title: "CYBER HEART", producer: "Digi 4", bpm: 160, key: "F#m", genre: "Trap", price: "$34.99" , path: "/cyber-heart.mp3"},
-  { id: 4, title: "NEON GHOST", producer: "Vinyl User", bpm: 95, key: "Em", genre: "Lo-fi", price: "$19.99", path: "/neon-ghost.mp3" },
+  { id: 1, producer_id: 1, title: "LUNA ECLIPSE", producer: "Vampire Inside", bpm: 140, key: "Am", genre: "Drill", price: "$29.99", path: "/luna-eclipse.mp3" },
+  { id: 2, producer_id: 2, title: "VOID RUNNER", producer: "Xiu Digital", bpm: 128, key: "Cm", genre: "Phonk", price: "$49.99", path: "/void-runner.mp3" },
+  { id: 3, producer_id: 3, title: "CYBER HEART", producer: "Digi 4", bpm: 160, key: "F#m", genre: "Trap", price: "$34.99" , path: "/cyber-heart.mp3"},
+  { id: 4, producer_id: 4, title: "NEON GHOST", producer: "Vinyl User", bpm: 95, key: "Em", genre: "Lo-fi", price: "$19.99", path: "/neon-ghost.mp3" },
 ];
 
 export default function Home() {
@@ -252,7 +252,7 @@ export default function Home() {
             </div>
             <div className="truncate">
               <h4 className="font-black text-sm uppercase tracking-tight truncate italic text-background">{activeBeat?.title ?? "—"}</h4>
-              <p className="text-[10px] font-bold text-background/60 uppercase tracking-widest truncate">{activeBeat?.producer ?? "—"}</p>
+              <Button onClick={() => navigate(`/producers/${activeBeat?.producer_id}`)} className="text-[10px] font-bold text-background/60 uppercase tracking-widest truncate border-none bg-transparent m-0 p-0">{activeBeat?.producer ?? "—"}</Button>
             </div>
             <Button variant="ghost" size="icon" className="text-background/60 ml-auto"><Heart className="w-4 h-4 text-background" /></Button>
           </div>
