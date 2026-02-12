@@ -36,9 +36,8 @@ const ProducerProfile = () => {
           <Button onClick={() => navigate("/producers")} variant="outline" className="absolute top-6 left-6 rounded-none border-2 border-foreground bg-background shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Directory
           </Button>
-
           <div className="flex items-center gap-8">
-            <div className="w-auto h-32 m-0 bg-background border-4 border-foreground flex items-center justify-center text-6xl font-black italic shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="w-32 h-32 bg-background border-4 border-foreground flex items-center justify-center text-6xl font-black italic shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               {producer.name[0]}
             </div>
             <div className="flex flex-col">
