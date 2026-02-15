@@ -21,11 +21,11 @@ const MOCK_BEATS = [
 
 const ProducerProfile = () => {
 
-    const navigate = useNavigate();
-    const { id } = useParams();
-    const producer = PRODUCERS.find(p => p.id === Number(id)) || PRODUCERS[0];
-  
-    return (
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const producer = PRODUCERS.find(p => p.id === Number(id)) || PRODUCERS[0];
+
+  return (
     <div className="min-h-screen bg-background text-foreground font-sans pb-32">
       {/* Hero Header */}
       <div className="h-64 bg-primary relative overflow-hidden border-b-4 border-foreground">
@@ -83,7 +83,7 @@ const ProducerProfile = () => {
         {/* Beats List */}
         <div className="lg:col-span-2 space-y-6">
           <h2 className="text-3xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-4">Uploaded Beats</h2>
-          
+
           <div className="space-y-4">
             {MOCK_BEATS.map((beat) => (
               <motion.div

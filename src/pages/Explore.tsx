@@ -52,7 +52,7 @@ export default function Explore() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.05 }}
             >
-              <Card 
+              <Card onClick={() => navigate(`/genre/${genre}`)}
                 className="group relative h-24 flex items-center justify-center border-2 border-foreground bg-elevate-1 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(255,51,102,1)] hover:bg-primary hover:text-primary-foreground transition-all cursor-pointer overflow-hidden"
                 data-testid={`card-genre-${genre}`}
               >

@@ -12,6 +12,7 @@ import ProducerDirectory from "./pages/ProducerDirectory";
 import ProducerProfile from "./pages/ProducerProfile";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import GenreProfile from "./pages/GenreProfile";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
         <Route path="/" element={<Home />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/categories" element={<AllCategories />} />
+        <Route path="/genre/:name" element={<GenreProfile />} />
         <Route path="/producers" element={<ProducerDirectory />} />
         <Route path="/producers/:id" element={<ProducerProfile />} />
         <Route path="/auth" element={<Auth />} />
