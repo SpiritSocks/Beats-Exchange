@@ -13,6 +13,7 @@ import ProducerProfile from "./pages/ProducerProfile";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import GenreProfile from "./pages/GenreProfile";
+import Settings from "./pages/Settings";
 
 function Router() {
   return (
@@ -26,6 +27,7 @@ function Router() {
         <Route path="/producers/:id" element={<ProducerProfile />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/cart" element={<></>} />
         <Route path="*" element={<NotFound />} /> {/* Fallback to 404 */}
       </Routes>
