@@ -95,7 +95,7 @@ const GenreProfile = () => {
                 </button>
               ))}
             </div>
-            <Badge className="rounded-none bg-primary text-foreground font-black uppercase text-[10px] h-10 px-6 flex items-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <Badge className="rounded-none bg-primary text-background font-black uppercase text-[10px] h-10 px-6 flex items-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
               {filteredBeats.length} Results
             </Badge>
           </div>

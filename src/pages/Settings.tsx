@@ -58,9 +58,6 @@ const Settings = () => {
                 <TabsTrigger value="notifications" className="w-full justify-start rounded-none border-none bg-transparent py-3 px-4 font-black uppercase text-[10px] tracking-widest data-[state=active]:border-l-4 data-[state=active]:border-primary data-[state=active]:bg-primary/10 transition-all">
                   <Bell className="w-4 h-4 mr-2" /> Alerts
                 </TabsTrigger>
-                <TabsTrigger value="billing" className="w-full justify-start rounded-none border-none bg-transparent py-3 px-4 font-black uppercase text-[10px] tracking-widest data-[state=active]:border-l-4 data-[state=active]:border-primary data-[state=active]:bg-primary/10 transition-all">
-                  <CreditCard className="w-4 h-4 mr-2" /> Billing
-                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -94,7 +91,7 @@ const Settings = () => {
                       </textarea>
                     </div>
 
-                    <Button className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-foreground font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
+                    <Button className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-background font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
                       <Save className="w-4 h-4 mr-2" /> Save Changes
                     </Button>
                   </div>
@@ -122,7 +119,7 @@ const Settings = () => {
                       <Switch />
                     </div>
 
-                    <Button className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-foreground font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all mt-4">
+                    <Button className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-background font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all mt-4">
                       Update Security
                     </Button>
                   </div>

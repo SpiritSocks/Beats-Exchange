@@ -5,10 +5,9 @@ import {
   Settings, 
   Plus, 
   Music, 
-  PlayCircle, 
   Wallet,
   Mail,
-  Edit2
+  Play
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,9 +58,6 @@ const Profile = () => {
                   <div className="w-32 h-32 bg-primary border-4 border-foreground flex items-center justify-center text-6xl font-black italic shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                     {user.name[0]}
                   </div>
-                  <Button size="icon" variant="outline" className="absolute -bottom-2 -right-2 rounded-none border-2 border-foreground bg-background w-8 h-8 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                    <Edit2 className="w-3 h-3" />
-                  </Button>
                 </div>
                 
                 <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-1">{user.name}</h1>
@@ -84,7 +80,7 @@ const Profile = () => {
                   </div>
                 </div>
 
-                <Button className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-foreground font-black uppercase tracking-widest text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all mb-4">
+                <Button className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-background font-black uppercase tracking-widest text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all mb-4">
                   <Upload className="w-4 h-4 mr-2" /> Upload New Beat
                 </Button>
               </div>
@@ -128,7 +124,7 @@ const Profile = () => {
                       className="p-4 border-2 border-foreground bg-elevate-1 flex items-center gap-4 group cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
                     >
                       <div className="w-10 h-10 bg-primary flex items-center justify-center shrink-0 border-2 border-foreground text-foreground">
-                        <PlayCircle className="w-6 h-6 fill-current" />
+                        <Play className="w-6 h-6 fill-background" />
                       </div>
                       <div className="flex-1">
                         <h4 className="font-black uppercase italic tracking-tight text-sm">Vampire Drill #{i}</h4>
