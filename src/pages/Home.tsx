@@ -9,11 +9,25 @@ import { Slider } from "@/components/ui/slider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {useNavigate} from "react-router-dom";
 
+  const MOST_LISTENED = [
+    { id: 10, title: "VAMPIRE DRILL", producer: "Vampire Inside", plays: "1.2M", price: "$29.99", genre: "Drill" },
+    { id: 11, title: "CHROME HEART", producer: "Ghost Tech", plays: "850K", price: "$34.99", genre: "Trap" },
+    { id: 12, title: "NIGHT RIDE", producer: "Digi 4", plays: "720K", price: "$19.99", genre: "Phonk" },
+    { id: 13, title: "DARK SOUL", producer: "Xiu Digital", plays: "640K", price: "$44.99", genre: "Drill" },
+    { id: 14, title: "GLITCH MODE", producer: "Vinyl User", plays: "590K", price: "$24.99", genre: "Hyperpop" },
+    { id: 15, title: "STATIC VOID", producer: "Ghost Tech", plays: "510K", price: "$39.99", genre: "Techno" },
+  ];
+
+
 const MOCK_BEATS = [
   { id: 1, producer_id: 1, title: "LUNA ECLIPSE", producer: "Vampire Inside", bpm: 140, key: "Am", genre: "Drill", price: "$29.99", path: "/luna-eclipse.mp3" },
   { id: 2, producer_id: 2, title: "VOID RUNNER", producer: "Xiu Digital", bpm: 128, key: "Cm", genre: "Phonk", price: "$49.99", path: "/void-runner.mp3" },
   { id: 3, producer_id: 3, title: "CYBER HEART", producer: "Digi 4", bpm: 160, key: "F#m", genre: "Trap", price: "$34.99" , path: "/cyber-heart.mp3"},
   { id: 4, producer_id: 4, title: "NEON GHOST", producer: "Vinyl User", bpm: 95, key: "Em", genre: "Lo-fi", price: "$19.99", path: "/neon-ghost.mp3" },
+  { id: 5, producer_id: 5, title: "LLC MOP", producer: "Vampire Inside", bpm: 140, key: "Am", genre: "Drill", price: "$29.99", path: "/luna-eclipse.mp3" },
+  { id: 6, producer_id: 6, title: "SUNSET RUSH", producer: "Xiu Digital", bpm: 128, key: "Cm", genre: "Phonk", price: "$49.99", path: "/sunset-rush.mp3" },
+  { id: 7, producer_id: 7, title: "BLOOD MOON", producer: "Digi 4", bpm: 160, key: "F#m", genre: "Trap", price: "$34.99" , path: "/blood-moon.mp3"},
+  { id: 8, producer_id: 8, title: "SILENT WAVE", producer: "Vinyl User", bpm: 95, key: "Em", genre: "Lo-fi", price: "$19.99", path: "/silent-wave.mp3" },
 ];
 
 export default function Home() {
@@ -120,6 +134,10 @@ export default function Home() {
   const sliderValue =
     duration > 0 ? [(currentTime / duration) * 100] : [0];
 
+  function addItem(arg0: { id: number; title: string; producer: string; price: number; genre: string; }) {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground font-sans overflow-hidden">
       <div className="fixed inset-0 pointer-events-none opacity-20 overflow-hidden">
@@ -180,13 +198,48 @@ export default function Home() {
 
           {/* Beat Grid */}
           <section className="flex-1 p-8 overflow-y-auto">
-            {/* Single reusable audio element; src is set in handlePlay */}
+            <div className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-4xl font-black uppercase italic tracking-tighter flex items-center gap-2">
+                    Most Popular
+                  </h2>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
+                {MOST_LISTENED.map((beat) => (
+                  <Card key={beat.id} className="group relative rounded-none border-2 border-foreground bg-elevate-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all cursor-pointer overflow-hidden">
+                    <div className="aspect-square relative overflow-hidden bg-muted">
+                      <div className="absolute inset-0 bg-black/40 z-10" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                        <Button size="icon" className="w-10 h-10 rounded-full bg-primary border-2 border-foreground">
+                          <Play className="w-4 h-4 fill-current ml-0.5" />
+                        </Button>
+                      </div>
+                      <div className="absolute bottom-2 left-2 right-2 z-20">
+                        <h3 className="text-xs font-black text-white uppercase italic truncate">{beat.title}</h3>
+                        <p className="text-[8px] font-bold text-white/70 uppercase truncate">{beat.producer}</p>
+                      </div>
+                      <div className="absolute top-2 right-2 z-20">
+                        <Badge className="rounded-none border-2 border-foreground bg-primary text-black font-black text-[8px] px-1.5 py-0">
+                          {beat.plays}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="p-2 flex items-center justify-between bg-white text-black border-t-2 border-foreground">
+                      <span className="text-[10px] font-black">{beat.price}</span>
+                      <Button size="sm" className="rounded-none font-bold uppercase text-[10px] h-8 px-4">Buy</Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+            
             <audio ref={songAudioRef} />
 
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-4xl font-black uppercase italic tracking-tighter">Newest Releases</h2>
-                <p className="text-muted-foreground text-sm font-bold mt-1">FRESHLY CURATED FOR YOUR NEXT PROJECT</p>
               </div>
             </div>
 
@@ -215,7 +268,7 @@ export default function Home() {
                         </Button>
                       </div>
                       <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
-                        <Badge className="rounded-none border-2 border-foreground bg-white text-black font-black uppercase text-[10px]">{beat.genre}</Badge>
+                        <Badge className="rounded-none border-2 border-foreground bg-white text-black font-black uppercase text-[10px] flex justify-center">{beat.genre}</Badge>
                         <Badge className="rounded-none border-2 border-foreground bg-primary font-black uppercase text-[10px]">{beat.bpm} BPM</Badge>
                       </div>
                       <div className="absolute bottom-4 left-4 right-4 z-20">
@@ -230,7 +283,7 @@ export default function Home() {
                     </div>
                     <div className="p-4 flex items-center justify-between bg-white text-black border-t-2 border-foreground">
                       <span className="text-lg font-black">{beat.price}</span>
-                      <Button size="sm" className="rounded-none font-bold uppercase text-[10px] h-8 px-4" data-testid={`button-buy-${beat.id}`}>Add to Cart</Button>
+                      <Button size="sm" className="rounded-none font-bold uppercase text-[10px] h-8 px-4">Buy</Button>
                     </div>
                   </Card>
                 </motion.div>
