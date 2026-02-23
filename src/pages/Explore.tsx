@@ -31,7 +31,6 @@ export default function Explore() {
         </Button>
         <div>
           <h1 className="text-6xl font-black uppercase italic tracking-tighter mb-2">Explore</h1>
-          <p className="text-muted-foreground font-bold tracking-widest text-xs">FIND YOUR SOUND BY CATEGORY OR CURATION</p>
         </div>
       </header>
 

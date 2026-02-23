@@ -32,7 +32,6 @@ export default function Producers() {
             </Button>
             <div className="flex flex-col">
               <h1 className="text-6xl font-black uppercase italic tracking-tighter leading-none self-start">Producers</h1>
-              <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-[0.2em] mt-1">Intent-driven Discovery Directory</p>
             </div>
           </div>
 

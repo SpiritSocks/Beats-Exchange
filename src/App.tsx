@@ -28,7 +28,6 @@ function Router() {
         <Route path="/auth" element={<Auth />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/cart" element={<></>} />
         <Route path="*" element={<NotFound />} /> {/* Fallback to 404 */}
       </Routes>
     </BrowserRouter>

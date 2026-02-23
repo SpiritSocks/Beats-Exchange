@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { Search, ShoppingCart, Play, Pause, Heart, User } from "lucide-react";
+import { Search, Play, Pause, Heart, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -152,11 +152,8 @@ export default function Home() {
             <ThemeToggle />
             <Button onClick={() => navigate("/explore")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:bg-primary hover:text-primary-foreground" data-testid="link-explore">Explore</Button>
             <Button onClick={() => navigate("/producers")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:bg-primary hover:text-primary-foreground" data-testid="link-producers">Producers</Button>
-            <Button onClick={() => navigate("/auth")} className="font-bold uppercase text-xs tracking-widest px-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all" data-testid="button-sell">Sign in</Button>
             <User onClick={() => navigate("/profile")} className="w-6 h-6" />
-            <div className="relative">
-              <ShoppingCart onClick={() => navigate("/cart")} className="w-6 h-6" />
-            </div>
+            <Button onClick={() => navigate("/auth")} className="font-bold uppercase text-xs tracking-widest px-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all" data-testid="button-sell">Sign in</Button>
           </nav>
         </header>
 
