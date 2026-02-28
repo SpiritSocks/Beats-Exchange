@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Play, Pause, Heart, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,7 @@ export default function Home() {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [activeBeatId, setActiveBeatId] = useState<number | null>(null);
   const [volume, setVolume] = useState(0.8);
+  const [likedIds, setLikedIds] = useState<number[]>(() => []);
 
   const activeBeat = activeBeatId ? MOCK_BEATS.find((b) => b.id === activeBeatId) : null;
 
@@ -131,12 +132,22 @@ export default function Home() {
     setIsSeeking(false);
   };
 
-  const sliderValue =
-    duration > 0 ? [(currentTime / duration) * 100] : [0];
+  const isActiveLiked = useMemo(() => {
+    const id = activeBeat?.id;
+    return typeof id === "number" ? likedIds.includes(id) : false;
+  }, [activeBeat?.id, likedIds]);
 
-  function addItem(arg0: { id: number; title: string; producer: string; price: number; genre: string; }) {
-    throw new Error("Function not implemented.");
-  }
+  const handleLike = (beatId: number) => {
+    setLikedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(beatId)) next.delete(beatId);
+      else next.add(beatId);
+      return Array.from(next);
+    });
+  };
+
+
+  const sliderValue = duration > 0 ? [(currentTime / duration) * 100] : [0];
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground font-sans overflow-hidden">
@@ -296,15 +307,21 @@ export default function Home() {
         <footer className="h-24 border-t-4 border-primary bg-foreground text-background px-6 flex items-center gap-8 relative z-50">
           <div className="flex items-center gap-4 w-75">
             <div className="w-16 h-16 bg-primary border-2 border-background shrink-0 overflow-hidden relative group">
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <Play className="w-4 h-4 fill-primary text-primary" />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0">
               </div>
             </div>
             <div className="truncate">
               <h4 className="font-black text-sm uppercase tracking-tight truncate italic text-background">{activeBeat?.title ?? "—"}</h4>
               <Button onClick={() => navigate(`/producers/${activeBeat?.producer_id}`)} className="text-[10px] font-bold text-background/60 uppercase tracking-widest truncate border-none bg-transparent m-0 p-0">{activeBeat?.producer ?? "—"}</Button>
             </div>
-            <Button variant="ghost" size="icon" className="text-background/60 ml-auto"><Heart className="w-4 h-4 text-background" /></Button>
+            <Button onClick={() => activeBeat?.id && handleLike(activeBeat.id)} disabled={!activeBeat?.id} variant="ghost" size="icon" className="text-background/60 ml-auto">
+              <Heart
+                className={[
+                  "w-4 h-4 transition-colors",
+                  isActiveLiked ? "fill-background text-primary" : "fill-transparent text-background",
+                ].join(" ")}
+              />
+            </Button>
           </div>
 
           <div className="flex-1 flex flex-col items-center gap-2 max-w-2xl mx-auto">
