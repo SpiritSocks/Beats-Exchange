@@ -9,15 +9,14 @@ import { Slider } from "@/components/ui/slider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {useNavigate} from "react-router-dom";
 
-  const MOST_LISTENED = [
-    { id: 10, title: "VAMPIRE DRILL", producer: "Vampire Inside", plays: "1.2M", price: "$29.99", genre: "Drill" },
-    { id: 11, title: "CHROME HEART", producer: "Ghost Tech", plays: "850K", price: "$34.99", genre: "Trap" },
-    { id: 12, title: "NIGHT RIDE", producer: "Digi 4", plays: "720K", price: "$19.99", genre: "Phonk" },
-    { id: 13, title: "DARK SOUL", producer: "Xiu Digital", plays: "640K", price: "$44.99", genre: "Drill" },
-    { id: 14, title: "GLITCH MODE", producer: "Vinyl User", plays: "590K", price: "$24.99", genre: "Hyperpop" },
-    { id: 15, title: "STATIC VOID", producer: "Ghost Tech", plays: "510K", price: "$39.99", genre: "Techno" },
-  ];
-
+const MOST_LISTENED = [
+  { id: 10, title: "VAMPIRE DRILL", producer: "Vampire Inside", plays: "1.2M", price: "$29.99", genre: "Drill" },
+  { id: 11, title: "CHROME HEART", producer: "Ghost Tech", plays: "850K", price: "$34.99", genre: "Trap" },
+  { id: 12, title: "NIGHT RIDE", producer: "Digi 4", plays: "720K", price: "$19.99", genre: "Phonk" },
+  { id: 13, title: "DARK SOUL", producer: "Xiu Digital", plays: "640K", price: "$44.99", genre: "Drill" },
+  { id: 14, title: "GLITCH MODE", producer: "Vinyl User", plays: "590K", price: "$24.99", genre: "Hyperpop" },
+  { id: 15, title: "STATIC VOID", producer: "Ghost Tech", plays: "510K", price: "$39.99", genre: "Techno" },
+];
 
 const MOCK_BEATS = [
   { id: 1, producer_id: 1, title: "LUNA ECLIPSE", producer: "Vampire Inside", bpm: 140, key: "Am", genre: "Drill", price: "$29.99", path: "/luna-eclipse.mp3" },
@@ -30,7 +29,7 @@ const MOCK_BEATS = [
   { id: 8, producer_id: 8, title: "SILENT WAVE", producer: "Vinyl User", bpm: 95, key: "Em", genre: "Lo-fi", price: "$19.99", path: "/silent-wave.mp3" },
 ];
 
-export default function Home() {
+const Home = () => {
 
   const navigate = useNavigate();
   const songAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -145,7 +144,6 @@ export default function Home() {
       return Array.from(next);
     });
   };
-
 
   const sliderValue = duration > 0 ? [(currentTime / duration) * 100] : [0];
 
@@ -385,3 +383,5 @@ export default function Home() {
     </div>
   );
 }
+
+export default Home;

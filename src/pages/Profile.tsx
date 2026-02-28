@@ -16,10 +16,9 @@ import {useNavigate} from "react-router-dom";
 
 const Profile = () => {
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Mock current user data
-
   const user = {
     name: "Vampire Inside",
     email: "vampire@beat-exchange.hub",
@@ -87,7 +86,7 @@ const Profile = () => {
             </Card>
 
             {/* Wallet Card */}
-            <Card className="rounded-none border-4 border-foreground bg-card p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-background">
+            <Card className="rounded-none border-4 border-foreground bg-card p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-foreground">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-5 h-5 text-primary" />
