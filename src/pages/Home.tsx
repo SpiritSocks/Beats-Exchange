@@ -179,8 +179,8 @@ const Home = () => {
             <ThemeToggle />
             <Button onClick={() => navigate("/explore")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:bg-primary hover:text-primary-foreground" data-testid="link-explore">Explore</Button>
             <Button onClick={() => navigate("/producers")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:bg-primary hover:text-primary-foreground" data-testid="link-producers">Producers</Button>
-            <User onClick={() => navigate("/profile")} className="w-6 h-6" />
-            <Button onClick={() => navigate("/auth")} className="font-bold uppercase text-xs tracking-widest px-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all" data-testid="button-sell">Sign in</Button>
+            <User onClick={() => navigate("/profile")} className="w-6 h-6 hover:text-primary cursor-pointer" />
+            <Button onClick={() => navigate("/auth")} className="font-bold uppercase text-xs tracking-widest px-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all hover:bg-primary hover:text-primary-foreground hover:border-background" data-testid="button-sell">Sign in</Button>
           </nav>
         </header>
 
