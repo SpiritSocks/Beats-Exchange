@@ -91,7 +91,7 @@ const GenreProfile = () => {
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
                         <Button
                           size="icon"
-                          className="rounded-full w-12 h-12 bg-primary border-2 border-foreground scale-90 group-hover:scale-100 transition-transform text-foreground"
+                          className="rounded-full w-12 h-12 bg-primary border-2 border-foreground scale-90 group-hover:scale-100 transition-transform"
                           onClick={() => play(beat)}
                         >
                           {isActive(beat.id) && isPlaying ? (
@@ -103,7 +103,7 @@ const GenreProfile = () => {
                       </div>
                       {beat.bpm && (
                         <div className="absolute top-2 right-2 z-20">
-                          <Badge className="rounded-none border-2 border-foreground bg-primary text-foreground font-black uppercase text-[8px] px-1.5 py-0.5">
+                          <Badge className="rounded-none border-2 border-foreground bg-primary text-background font-black uppercase text-[8px] px-1.5 py-0.5">
                             {beat.bpm} BPM
                           </Badge>
                         </div>
@@ -118,7 +118,7 @@ const GenreProfile = () => {
 
                       <div className="mt-4 flex items-center justify-between pt-3 border-t border-foreground/10">
                         <span className="font-black text-sm">{getBasePrice(beat)}</span>
-                        <Button size="sm" className="rounded-none h-8 font-black uppercase text-[9px] border-2 border-foreground bg-primary text-foreground hover:bg-foreground hover:text-primary px-3">
+                        <Button size="sm" className="rounded-none h-8 font-black uppercase text-[9px] border-2 border-foreground bg-primary text-background hover:bg-foreground hover:text-primary px-3">
                           Buy
                         </Button>
                       </div>

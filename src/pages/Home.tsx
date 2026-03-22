@@ -41,7 +41,7 @@ const Home = () => {
     try { await apiLogout(); } catch {}
 
     localStorage.removeItem("authToken");
-    queryClient.removeQueries({ queryKey: ["me"] });
+    queryClient.clear();
     setIsLoggedIn(false);
     navigate("/");
   };
@@ -92,23 +92,6 @@ const Home = () => {
         </header>
 
         <main className="flex-1 overflow-hidden flex gap-0">
-          <aside className="w-64 border-r border-border p-6 hidden md:flex flex-col gap-8 bg-background/30 backdrop-blur-md">
-            <div>
-              <h2 className="text-xs font-black uppercase tracking-[0.2em] mb-4 text-muted-foreground">Library</h2>
-              <div className="flex flex-col gap-2">
-                <Button variant="ghost" className="justify-start font-bold uppercase text-xs group hover:bg-primary hover:text-primary-foreground rounded-none transition-all">
-                  <span className="w-2 h-2 bg-primary group-hover:bg-white rounded-full mr-3" /> Feed
-                </Button>
-                <Button variant="ghost" className="justify-start font-bold uppercase text-xs group hover:bg-primary hover:text-primary-foreground rounded-none transition-all">
-                  <span className="w-2 h-2 bg-muted-foreground group-hover:bg-white rounded-full mr-3" /> Trending
-                </Button>
-                <Button variant="ghost" className="justify-start font-bold uppercase text-xs group hover:bg-primary hover:text-primary-foreground rounded-none transition-all">
-                  <span className="w-2 h-2 bg-muted-foreground group-hover:bg-white rounded-full mr-3" /> History
-                </Button>
-              </div>
-            </div>
-          </aside>
-
           <section className="flex-1 p-8 overflow-y-auto">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-4xl font-black uppercase italic tracking-tighter">Newest Releases</h2>
@@ -119,50 +102,46 @@ const Home = () => {
                 <p className="font-black uppercase italic text-muted-foreground tracking-widest">No beats available yet</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-5">
                 {latestBeats.map((beat, i) => (
                   <motion.div
                     key={beat.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
+                    transition={{ delay: i * 0.05 }}
                   >
-                    <Card className="group relative rounded-none border-2 border-foreground bg-elevate-1 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[12px_12px_0px_0px_rgba(255,51,102,0.3)] transition-all cursor-pointer overflow-hidden">
+                    <Card className="group relative rounded-none border-2 border-foreground bg-elevate-1 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_rgba(255,51,102,0.3)] transition-all cursor-pointer overflow-hidden">
                       <div className="aspect-square relative overflow-hidden bg-muted">
                         <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent z-10" />
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
                           <Button
                             size="icon"
-                            className="rounded-full w-16 h-16 bg-primary border-4 border-foreground scale-90 group-hover:scale-100 transition-transform"
+                            className="rounded-full w-12 h-12 bg-primary border-2 border-foreground scale-90 group-hover:scale-100 transition-transform"
                             onClick={() => play(beat)}
                           >
                             {isActive(beat.id) && isPlaying ? (
-                              <Pause className="w-8 h-8 fill-current ml-1" />
+                              <Pause className="w-6 h-6 fill-current ml-0.5" />
                             ) : (
-                              <Play className="w-8 h-8 fill-current ml-1" />
+                              <Play className="w-6 h-6 fill-current ml-0.5" />
                             )}
                           </Button>
                         </div>
-                        <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+                        <div className="absolute top-2 right-2 z-20 flex flex-col gap-1">
                           {beat.genre && (
-                            <Badge className="rounded-none border-2 border-foreground bg-white text-black font-black uppercase text-[10px] flex justify-center">{beat.genre.name}</Badge>
+                            <Badge className="rounded-none border border-foreground bg-white text-black font-black uppercase text-[8px] flex justify-center">{beat.genre.name}</Badge>
                           )}
                           {beat.bpm && (
-                            <Badge className="rounded-none border-2 border-foreground bg-primary font-black uppercase text-[10px]">{beat.bpm} BPM</Badge>
+                            <Badge className="rounded-none border border-foreground bg-primary font-black uppercase text-[8px]">{beat.bpm} BPM</Badge>
                           )}
                         </div>
-                        <div className="absolute bottom-4 left-4 right-4 z-20">
-                          <h3 className="text-xl font-black text-white uppercase italic tracking-tight truncate">{beat.name}</h3>
-                          <p className="text-white/70 text-xs font-bold uppercase tracking-wider">{beat.user?.name ?? "Unknown"}</p>
-                        </div>
-                        <div className="absolute inset-0 opacity-20 group-hover:scale-110 transition-transform duration-700">
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-8 border-white rounded-full animate-pulse" />
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border-4 border-primary rounded-full animate-spin-slow" />
+                        <div className="absolute bottom-2 left-2 right-2 z-20">
+                          <h3 className="text-sm font-black text-white uppercase italic tracking-tight truncate">{beat.name}</h3>
+                          <p className="text-white/70 text-[10px] font-bold uppercase tracking-wider truncate">{beat.user?.name ?? "Unknown"}</p>
                         </div>
                       </div>
-                      <div className="p-4 flex items-center justify-between bg-white text-black border-t-2 border-foreground">
-                        <span className="text-lg font-black">{getBasePrice(beat)}</span>
-                        <Button size="sm" className="rounded-none font-bold uppercase text-[10px] h-8 px-4">Buy</Button>
+                      <div className="p-2.5 flex items-center justify-between bg-white text-black border-t-2 border-foreground">
+                        <span className="text-sm font-black">{getBasePrice(beat)}</span>
+                        <Button size="sm" className="rounded-none font-bold uppercase text-[9px] h-7 px-3">Buy</Button>
                       </div>
                     </Card>
                   </motion.div>

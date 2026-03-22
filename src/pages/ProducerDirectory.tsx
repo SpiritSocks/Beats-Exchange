@@ -56,7 +56,7 @@ export default function Producers() {
 
         {/* Filters */}
         <div className="flex flex-row justify-center gap-4 mb-10 ">
-          {["All Creators", "Top Rated", "Trending", "New Blood", "Verified"].map((filter) => (
+          {["All Creators"].map((filter) => (
             <Badge
               key={filter}
               variant="outline"

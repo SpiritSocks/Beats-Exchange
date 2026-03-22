@@ -35,7 +35,7 @@ const Settings = () => {
   const handleLogout = async () => {
     try { await apiLogout(); } catch {}
     localStorage.removeItem("authToken");
-    queryClient.removeQueries({ queryKey: ["me"] });
+    queryClient.clear();
     navigate("/auth");
   };
 

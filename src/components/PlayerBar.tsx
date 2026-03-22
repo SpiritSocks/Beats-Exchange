@@ -2,11 +2,12 @@ import { Play, Pause, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { usePlayer } from "@/context/PlayerContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useMemo } from "react";
 
 export function PlayerBar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { activeBeat, isPlaying, duration, currentTime, volume, togglePlayPause, seek, setVolume } = usePlayer();
 
   const [isSeeking, setIsSeeking] = useState(false);
@@ -29,6 +30,8 @@ export function PlayerBar() {
       return Array.from(next);
     });
   };
+
+  if (!activeBeat || location.pathname === "/auth") return null;
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 h-24 border-t-4 border-primary bg-foreground text-background px-6 flex items-center gap-8 z-50">
@@ -68,7 +71,7 @@ export function PlayerBar() {
           <Slider
             value={sliderValue}
             max={100}
-            step={1}
+            step={0.1}
             className="flex-1 cursor-pointer"
             onValueChange={(v) => {
               setIsSeeking(true);
@@ -76,7 +79,8 @@ export function PlayerBar() {
               setSeekTime(newTime);
             }}
             onValueCommit={(v) => {
-              seek(v[0] ?? 0);
+              const newTime = ((v[0] ?? 0) / 100) * duration;
+              seek(newTime);
               setIsSeeking(false);
             }}
           />

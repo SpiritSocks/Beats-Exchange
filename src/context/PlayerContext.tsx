@@ -10,7 +10,7 @@ type PlayerState = {
   volume: number;
   play: (beat: Beat) => void;
   togglePlayPause: () => void;
-  seek: (percent: number) => void;
+  seek: (timeInSeconds: number) => void;
   setVolume: (v: number) => void;
   isActive: (beatId: number) => boolean;
 };
@@ -95,13 +95,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     }
   }, [activeBeat]);
 
-  const seek = useCallback((percent: number) => {
+  const seek = useCallback((timeInSeconds: number) => {
     const audio = audioRef.current;
-    if (!audio || !duration) return;
-    const newTime = (percent / 100) * duration;
-    audio.currentTime = newTime;
-    setCurrentTime(newTime);
-  }, [duration]);
+    if (!audio) return;
+    audio.currentTime = timeInSeconds;
+    setCurrentTime(timeInSeconds);
+  }, []);
 
   const setVolume = useCallback((v: number) => {
     setVolumeState(v);

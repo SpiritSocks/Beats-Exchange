@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { register, login } from "@/api/auth";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isLogin, setIsLogin] = useState(true);
 
   const [name, setName] = useState("");
@@ -28,6 +30,7 @@ const Auth = () => {
     try {
       if (isLogin) {
         const data = await login({ email, password });
+        queryClient.clear();
         localStorage.setItem("authToken", data.token);
         navigate("/");
         return;
@@ -40,6 +43,7 @@ const Auth = () => {
         passwordConfirmation,
       });
 
+      queryClient.clear();
       localStorage.setItem("authToken", data.token);
       navigate("/");
     } catch (err: any) {
