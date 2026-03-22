@@ -1,29 +1,40 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, MapPin, Play, Heart, Share2 } from "lucide-react";
+import { ArrowLeft, Play, Pause, Heart, Share2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useParams } from "react-router-dom";
-
-// Mock data shared across the app
-const PRODUCERS = [
-  { id: 1, name: "Vampire Inside", genres: ["Phonk", "Drill"], beats: 142, rating: 4.9, location: "London, UK", bio: "Dark atmosphere specialist. Providing the hardest drill and phonk sounds since 2018." },
-  { id: 2, name: "Xiu Digital", genres: ["Trap", "Techno"], beats: 89, rating: 4.8, location: "Berlin, DE", bio: "Electronic fusion producer focused on high-energy trap and techno hybrids." },
-  { id: 3, name: "Digi 4", genres: ["Hyperpop", "Drill"], beats: 65, rating: 4.7, location: "Tokyo, JP", bio: "Experimental sounds from the future. Merging hyperpop aesthetics with heavy drill bass." },
-  { id: 4, name: "Vinyl User", genres: ["Lo-fi", "Boom Bap"], beats: 210, rating: 5.0, location: "Brooklyn, NY", bio: "Keeping the golden era alive. Analog warmth and dusty samples." },
-];
-
-const MOCK_BEATS = [
-  { id: 1, title: "LUNA ECLIPSE", price: "$29.99", bpm: 140, genre: "Drill" },
-  { id: 2, title: "VOID RUNNER", price: "$49.99", bpm: 128, genre: "Phonk" },
-  { id: 3, title: "CYBER HEART", price: "$34.99", bpm: 160, genre: "Trap" },
-];
+import { useQuery } from "@tanstack/react-query";
+import { fetchProducer } from "@/api/producers";
+import type { Beat } from "@/api/types";
+import { usePlayer } from "@/context/PlayerContext";
 
 const ProducerProfile = () => {
-
   const navigate = useNavigate();
+  const { play, isPlaying, isActive } = usePlayer();
   const { id } = useParams();
-  const producer = PRODUCERS.find(p => p.id === Number(id)) || PRODUCERS[0];
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["producer", id],
+    queryFn: () => fetchProducer(Number(id)),
+    enabled: !!id,
+  });
+
+  const producer = data?.producer;
+  const beats = data?.beats ?? [];
+
+  const getBasePrice = (beat: Beat) => {
+    const base = beat.licenses?.find((l) => l.code === "base");
+    return base ? `$${base.price}` : "—";
+  };
+
+  if (isLoading || !producer) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <p className="font-black uppercase tracking-widest text-xs">Loading producer...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans pb-32">
@@ -45,9 +56,7 @@ const ProducerProfile = () => {
                 {producer.name}
               </h1>
               <div className="flex items-center gap-4 text-background font-black uppercase text-xs tracking-widest">
-                <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {producer.location}</span>
-                <span className="flex items-center gap-1"><Star className="w-3 h-3 fill-current" /> {producer.rating} Rating</span>
-                <span>{producer.beats} Beats Uploaded</span>
+                <span>{beats.length} Beats Uploaded</span>
               </div>
             </div>
           </div>
@@ -60,22 +69,11 @@ const ProducerProfile = () => {
           <Card className="rounded-none border-2 border-foreground p-6 bg-card shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <h2 className="text-xl font-black uppercase italic mb-4">About</h2>
             <p className="text-sm font-bold text-muted-foreground leading-relaxed">
-              {producer.bio}
+              {producer.about || "No bio yet."}
             </p>
             <div className="flex gap-4 mt-6">
               <Button size="icon" variant="outline" className="rounded-none border-2 border-foreground"><Share2 className="w-4 h-4" /></Button>
               <Button className="flex-1 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black uppercase text-xs">Follow</Button>
-            </div>
-          </Card>
-
-          <Card className="rounded-none border-2 border-foreground p-6 bg-card">
-            <h2 className="text-xl font-black uppercase italic mb-4">Tags</h2>
-            <div className="flex flex-wrap gap-2">
-              {producer.genres.map(g => (
-                <Badge key={g} className="rounded-none bg-primary text-background font-black uppercase text-[10px]">{g}</Badge>
-              ))}
-              <Badge variant="outline" className="rounded-none border-foreground/20 font-black uppercase text-[10px]">Verified</Badge>
-              <Badge variant="outline" className="rounded-none border-foreground/20 font-black uppercase text-[10px]">Pro Seller</Badge>
             </div>
           </Card>
         </div>
@@ -84,28 +82,44 @@ const ProducerProfile = () => {
         <div className="lg:col-span-2 space-y-6">
           <h2 className="text-3xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-4">Uploaded Beats</h2>
 
-          <div className="space-y-4">
-            {MOCK_BEATS.map((beat) => (
-              <motion.div
-                key={beat.id}
-                whileHover={{ x: 10 }}
-                className="p-4 border-2 border-foreground bg-card flex items-center gap-4 group cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(255,51,102,1)] transition-all"
-              >
-                <div className="w-12 h-12 bg-primary flex items-center justify-center shrink-0 border-2 border-foreground">
-                  <Play className="w-6 h-6 fill-background" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-black uppercase italic tracking-tight">{beat.title}</h3>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase">{beat.genre} • {beat.bpm} BPM</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="font-black text-lg">{beat.price}</span>
-                  <Button size="icon" variant="ghost" className="hover:text-primary"><Heart className="w-5 h-5" /></Button>
-                  <Button size="sm" className="rounded-none font-black uppercase text-[10px] border-2 border-foreground">Buy</Button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          {beats.length === 0 ? (
+            <div className="text-center py-12 border-2 border-dashed border-foreground/20">
+              <p className="font-black uppercase italic text-muted-foreground tracking-widest text-sm">No beats uploaded yet</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {beats.map((beat) => (
+                <motion.div
+                  key={beat.id}
+                  whileHover={{ x: 10 }}
+                  className="p-4 border-2 border-foreground bg-card flex items-center gap-4 group cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(255,51,102,1)] transition-all"
+                >
+                  <Button
+                    size="icon"
+                    className="w-12 h-12 bg-primary flex items-center justify-center shrink-0 border-2 border-foreground rounded-none"
+                    onClick={(e) => { e.stopPropagation(); play(beat); }}
+                  >
+                    {isActive(beat.id) && isPlaying ? (
+                      <Pause className="w-6 h-6 fill-background" />
+                    ) : (
+                      <Play className="w-6 h-6 fill-background" />
+                    )}
+                  </Button>
+                  <div className="flex-1">
+                    <h3 className="font-black uppercase italic tracking-tight">{beat.name}</h3>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase">
+                      {beat.genre?.name ?? ""} {beat.bpm ? `• ${beat.bpm} BPM` : ""}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="font-black text-lg">{getBasePrice(beat)}</span>
+                    <Button size="icon" variant="ghost" className="hover:text-primary"><Heart className="w-5 h-5" /></Button>
+                    <Button size="sm" className="rounded-none font-black uppercase text-[10px] border-2 border-foreground">Buy</Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>

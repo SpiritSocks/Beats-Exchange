@@ -4,6 +4,8 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./components/theme-provider";
+import { PlayerProvider } from "./context/PlayerContext";
+import { PlayerBar } from "./components/PlayerBar";
 import NotFound from "./pages/not-found";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
@@ -15,32 +17,29 @@ import Profile from "./pages/Profile";
 import GenreProfile from "./pages/GenreProfile";
 import Settings from "./pages/Settings";
 
-function Router() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/categories" element={<AllCategories />} />
-        <Route path="/genre/:name" element={<GenreProfile />} />
-        <Route path="/producers" element={<ProducerDirectory />} />
-        <Route path="/producers/:id" element={<ProducerProfile />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<NotFound />} /> {/* Fallback to 404 */}
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="beat-exchange-theme">
         <TooltipProvider>
-          <Toaster />
-          <Router />
+          <BrowserRouter>
+            <PlayerProvider>
+              <Toaster />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/explore" element={<Explore />} />
+                <Route path="/categories" element={<AllCategories />} />
+                <Route path="/genre/:id" element={<GenreProfile />} />
+                <Route path="/producers" element={<ProducerDirectory />} />
+                <Route path="/producers/:id" element={<ProducerProfile />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <PlayerBar />
+            </PlayerProvider>
+          </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

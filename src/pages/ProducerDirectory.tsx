@@ -1,26 +1,26 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Search, Star, SlidersHorizontal, MapPin } from "lucide-react";
+import { ArrowLeft, Search, SlidersHorizontal } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const PRODUCERS = [
-  { id: 1, name: "Vampire Inside", genres: ["Phonk", "Drill"], beats: 142, rating: 4.9, location: "London, UK" },
-  { id: 2, name: "Xiu Digital", genres: ["Trap", "Techno"], beats: 89, rating: 4.8, location: "Berlin, DE" },
-  { id: 3, name: "Digi 4", genres: ["Hyperpop", "Drill"], beats: 65, rating: 4.7, location: "Tokyo, JP" },
-  { id: 4, name: "Vinyl User", genres: ["Lo-fi", "Boom Bap"], beats: 210, rating: 5.0, location: "Brooklyn, NY" },
-  { id: 5, name: "Killa Prod", genres: ["Detroit", "Trap"], beats: 45, rating: 4.6, location: "Detroit, MI" },
-  { id: 6, name: "Neon Ghost", genres: ["Synthwave", "Ambient"], beats: 78, rating: 4.9, location: "Los Angeles, CA" },
-  { id: 7, name: "Phantom Bass", genres: ["Dubstep", "Grime"], beats: 112, rating: 4.8, location: "Bristol, UK" },
-  { id: 8, name: "Signal Flow", genres: ["House", "Techno"], beats: 95, rating: 4.7, location: "Amsterdam, NL" },
-];
+import { useQuery } from "@tanstack/react-query";
+import { fetchProducers } from "@/api/producers";
+import type { PaginatedResponse, Producer } from "@/api/types";
+import { useState } from "react";
 
 export default function Producers() {
-
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+
+  const { data } = useQuery<PaginatedResponse<Producer>>({
+    queryKey: ["producers", page],
+    queryFn: () => fetchProducers(page),
+  });
+
+  const producers = data?.data ?? [];
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground">
 
@@ -39,21 +39,11 @@ export default function Producers() {
             <div className="relative flex-1 group md:w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input
-                placeholder="Search by genre, style, or name..."
+                placeholder="Search by name..."
                 className="pl-10 h-12 bg-background border-2 border-foreground rounded-none focus:ring-0 focus:border-primary transition-all uppercase text-[10px] font-black w-full"
               />
             </div>
             <div className="flex gap-3">
-              <Select>
-                <SelectTrigger className="w-35 h-12 rounded-none border-2 border-foreground bg-background font-black uppercase text-[10px]">
-                  <SelectValue placeholder="Genre" />
-                </SelectTrigger>
-                <SelectContent className="rounded-none border-2 border-foreground">
-                  <SelectItem value="phonk">Phonk</SelectItem>
-                  <SelectItem value="drill">Drill</SelectItem>
-                  <SelectItem value="trap">Trap</SelectItem>
-                </SelectContent>
-              </Select>
               <Button variant="outline" size="icon" className="w-12 h-12 rounded-none border-2 border-foreground">
                 <SlidersHorizontal className="w-5 h-5" />
               </Button>
@@ -66,7 +56,7 @@ export default function Producers() {
 
         {/* Filters */}
         <div className="flex flex-row justify-center gap-4 mb-10 ">
-          {["All Creators", "Top Rated", "Trending", "Old Guard", "New Blood", "Verified"].map((filter) => (
+          {["All Creators", "Top Rated", "Trending", "New Blood", "Verified"].map((filter) => (
             <Badge
               key={filter}
               variant="outline"
@@ -77,69 +67,82 @@ export default function Producers() {
           ))}
         </div>
 
-        {/* The discovery */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {PRODUCERS.map((producer, index) => (
-            <motion.div
-              key={producer.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Card
-                className="group flex flex-col h-full rounded-none border-2 border-foreground bg-card shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(255,51,102,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
-                onClick={() => navigate(`/producers/${producer.id}`)}
+        {producers.length === 0 ? (
+          <div className="text-center py-20 border-2 border-dashed border-foreground/20">
+            <p className="font-black uppercase italic text-muted-foreground tracking-widest">No producers found</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {producers.map((producer, index) => (
+              <motion.div
+                key={producer.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
               >
-                <div className="p-6 pt-10 flex-1">
-                  <div className="flex items-center justify-center mb-6">
-                    <div className="w-20 h-20 bg-primary border-4 border-primary flex items-center justify-center text-4xl font-black italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:bg-white group-hover:text-primary transition-colors">
-                      {producer.name[0]}
-                    </div>
-                  </div>
-
-                  <div className="text-center mb-6">
-                    <h2 className="text-2xl font-black uppercase italic tracking-tight mb-1 group-hover:text-primary transition-colors leading-tight">
-                      {producer.name}
-                    </h2>
-                    <div className="flex items-center justify-center gap-3">
-                      <div className="flex items-center gap-1 text-primary">
-                        <Star className="w-3 h-3 fill-current" />
-                        <span className="text-[10px] font-black">{producer.rating}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-muted-foreground">
-                        <MapPin className="w-3 h-3" />
-                        <span className="text-[10px] font-bold uppercase">{producer.location}</span>
+                <Card
+                  className="group flex flex-col h-full rounded-none border-2 border-foreground bg-card shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(255,51,102,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
+                  onClick={() => navigate(`/producers/${producer.id}`)}
+                >
+                  <div className="p-6 pt-10 flex-1">
+                    <div className="flex items-center justify-center mb-6">
+                      <div className="w-20 h-20 bg-primary border-4 border-primary flex items-center justify-center text-4xl font-black italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:bg-white group-hover:text-primary transition-colors">
+                        {producer.name[0]}
                       </div>
                     </div>
+
+                    <div className="text-center mb-6">
+                      <h2 className="text-2xl font-black uppercase italic tracking-tight mb-1 group-hover:text-primary transition-colors leading-tight">
+                        {producer.name}
+                      </h2>
+                      {producer.email && (
+                        <p className="text-[10px] font-bold uppercase text-muted-foreground">{producer.email}</p>
+                      )}
+                    </div>
+
+                    {producer.about && (
+                      <p className="text-xs text-muted-foreground text-center line-clamp-2">{producer.about}</p>
+                    )}
                   </div>
 
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-wrap justify-center gap-1.5">
-                      {producer.genres.map(genre => (
-                        <Badge key={genre} variant="outline" className="rounded-none border-foreground/20 text-[8px] font-black uppercase px-2 py-0.5 bg-muted/30">
-                          {genre}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex justify-between items-center pt-4 border-t border-foreground/10">
-                      <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Catalog</span>
-                      <span className="text-[10px] font-black uppercase">{producer.beats} Beats</span>
-                    </div>
+                  <div className="border-t-2 border-foreground grid grid-cols-1">
+                    <Button
+                      className="col-span-3 rounded-none h-12 font-black uppercase text-[10px] tracking-widest bg-primary text-black hover:text-primary hover:bg-white transition-colors border-none"
+                      onClick={(e) => { e.stopPropagation(); navigate(`/producers/${producer.id}`); }}
+                    >
+                      View Profile
+                    </Button>
                   </div>
-                </div>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
-                <div className="border-t-2 border-foreground grid grid-cols-1">
-                  <Button
-                    className="col-span-3 rounded-none h-12 font-black uppercase text-[10px] tracking-widest bg-primary text-black hover:text-primary hover:bg-white transition-colors border-none"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/producers/${producer.id}`); }}
-                  >
-                    View Catalog
-                  </Button>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+        {/* Pagination */}
+        {data && data.last_page > 1 && (
+          <div className="flex justify-center gap-4 mt-12">
+            <Button
+              variant="outline"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+              className="rounded-none border-2 border-foreground font-black uppercase text-xs"
+            >
+              Previous
+            </Button>
+            <span className="flex items-center font-black uppercase text-xs tracking-widest">
+              Page {data.current_page} of {data.last_page}
+            </span>
+            <Button
+              variant="outline"
+              disabled={page >= data.last_page}
+              onClick={() => setPage((p) => p + 1)}
+              className="rounded-none border-2 border-foreground font-black uppercase text-xs"
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </main>
     </div>
   );

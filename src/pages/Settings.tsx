@@ -1,12 +1,9 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-
-import { 
-  ArrowLeft, 
-  User, 
-  Lock, 
-  Bell, 
-  CreditCard,
+import {
+  ArrowLeft,
+  User,
+  Lock,
+  Bell,
   Save,
   LogOut
 } from "lucide-react";
@@ -17,11 +14,43 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { me, logout as apiLogout, type User as UserType } from "@/api/auth";
 
 const Settings = () => {
-
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("general");
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+  const { data: user, isLoading } = useQuery<UserType | null>({
+    queryKey: ["me", token],
+    queryFn: async () => {
+      try { return await me(); } catch { return null; }
+    },
+    enabled: !!token,
+  });
+
+  const handleLogout = async () => {
+    try { await apiLogout(); } catch {}
+    localStorage.removeItem("authToken");
+    queryClient.removeQueries({ queryKey: ["me"] });
+    navigate("/auth");
+  };
+
+  if (!token || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <p className="font-black uppercase tracking-widest text-xs">Loading settings...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans pb-32">
@@ -29,15 +58,15 @@ const Settings = () => {
       <div className="border-b-4 border-foreground bg-card/30 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-6 py-6 flex items-center justify-between">
           <div className="flex items-center gap-6">
-              <Button onClick={() => navigate("/profile")} variant="ghost" size="icon" className="rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all bg-background">
-                <ArrowLeft className="w-6 h-6" />
-              </Button>
+            <Button onClick={() => navigate("/profile")} variant="ghost" size="icon" className="rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all bg-background">
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
             <div>
               <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Settings</h1>
               <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-[0.2em] mt-1">Manage your identity and hub experience</p>
             </div>
           </div>
-          <Button variant="outline" className="rounded-none border-2 border-destructive text-destructive font-black uppercase text-[10px] tracking-widest hover:bg-destructive hover:text-destructive-foreground transition-all">
+          <Button onClick={handleLogout} variant="outline" className="rounded-none border-2 border-destructive text-destructive font-black uppercase text-[10px] tracking-widest hover:bg-destructive hover:text-destructive-foreground transition-all">
             <LogOut className="w-4 h-4 mr-2" /> Logout
           </Button>
         </div>
@@ -69,26 +98,28 @@ const Settings = () => {
                   <div className="grid gap-6">
                     <div className="flex items-center gap-6 mb-4">
                       <div className="w-20 h-20 bg-primary border-4 border-foreground flex items-center justify-center text-4xl font-black italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        V
+                        {user.name[0]}
                       </div>
                       <Button variant="outline" className="rounded-none border-2 border-foreground font-black uppercase text-[10px]">Change Photo</Button>
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <Label className="font-black uppercase text-[10px] tracking-widest">Username</Label>
-                      <Input defaultValue="Vampire Inside" className="rounded-none border-2 border-foreground h-12 font-bold" />
+                      <Input defaultValue={user.name} className="rounded-none border-2 border-foreground h-12 font-bold" />
                     </div>
 
                     <div className="grid gap-2">
                       <Label className="font-black uppercase text-[10px] tracking-widest">Email Address</Label>
-                      <Input defaultValue="vampire@beat-exchange.hub" className="rounded-none border-2 border-foreground h-12 font-bold" />
+                      <Input defaultValue={user.email} className="rounded-none border-2 border-foreground h-12 font-bold" />
                     </div>
 
                     <div className="grid gap-2">
                       <Label className="font-black uppercase text-[10px] tracking-widest">Bio</Label>
-                      <textarea className="w-full h-32 rounded-none border-2 border-foreground bg-background p-4 font-bold text-sm outline-none focus:border-primary transition-all resize-none">
-                        Dark atmosphere specialist. Providing the hardest drill and phonk sounds since 2018. Based in London, UK.
-                      </textarea>
+                      <textarea
+                        defaultValue={user.about ?? ""}
+                        placeholder="Tell us about yourself..."
+                        className="w-full h-32 rounded-none border-2 border-foreground bg-background p-4 font-bold text-sm outline-none focus:border-primary transition-all resize-none"
+                      />
                     </div>
 
                     <Button className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-background font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
@@ -110,7 +141,7 @@ const Settings = () => {
                       <Label className="font-black uppercase text-[10px] tracking-widest">New Password</Label>
                       <Input type="password" placeholder="••••••••" className="rounded-none border-2 border-foreground h-12 font-bold" />
                     </div>
-                    
+
                     <div className="pt-4 border-t-2 border-foreground/10 flex items-center justify-between">
                       <div>
                         <p className="font-black uppercase text-[10px] tracking-widest mb-1">Two-Factor Authentication</p>

@@ -1,53 +1,169 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { 
-  ArrowLeft, 
-  Upload, 
-  Settings, 
-  Plus, 
-  Music, 
+import {
+  ArrowLeft,
+  Upload,
+  Settings,
+  Plus,
+  Music,
   Wallet,
   Mail,
+  X,
   Play,
-  X
+  Pause,
+  Trash2,
 } from "lucide-react";
+
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {useNavigate} from "react-router-dom";
-import { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { Textarea } from "@/components/ui/textarea";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { me, type User } from "@/api/auth";
+import { fetchMyBeats, createBeat, uploadBeatAsset, deleteBeat } from "@/api/beats";
+import { fetchGenres } from "@/api/genres";
+import type { Beat, Genre } from "@/api/types";
+import { usePlayer } from "@/context/PlayerContext";
 
 
 const Profile = () => {
-  
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { play, isPlaying, isActive } = usePlayer();
 
-  // Mock current user data
-  const user = {
-    name: "Vampire Inside",
-    email: "vampire@beat-exchange.hub",
-    balance: "1,240.50",
-    followers: "12.4k",
-    plays: "450k",
-    tracks: 142,
-    bio: "Dark atmosphere specialist. Providing the hardest drill and phonk sounds since 2018. Based in London, UK."
-  };
+  // Form state
+  const [beatName, setBeatName] = useState("");
+  const [beatGenreId, setBeatGenreId] = useState<string>("");
+  const [beatBpm, setBeatBpm] = useState("");
+  const [beatKey, setBeatKey] = useState("");
+  const [beatPrice, setBeatPrice] = useState("");
+  const [beatDescription, setBeatDescription] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const GENRES = ["Drill", "Phonk", "Trap", "Lo-fi", "Boom Bap", "Hyperpop", "Techno", "R&B"];
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+  const { data: user, isLoading, isError } = useQuery<User | null>({
+    queryKey: ["me", token],
+    queryFn: async () => {
+      try {
+        return await me();
+      } catch {
+        return null;
+      }
+    },
+  });
+
+  const { data: myBeats = [] } = useQuery<Beat[]>({
+    queryKey: ["my-beats"],
+    queryFn: fetchMyBeats,
+    enabled: !!token,
+  });
+
+  const { data: genres = [] } = useQuery<Genre[]>({
+    queryKey: ["genres"],
+    queryFn: fetchGenres,
+  });
+
+  const deleteBeatMutation = useMutation({
+    mutationFn: (beatId: number) => deleteBeat(beatId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-beats"] });
+      queryClient.invalidateQueries({ queryKey: ["beats"] });
+    },
+  });
+
+  const createBeatMutation = useMutation({
+    mutationFn: async () => {
+      const price = beatPrice ? parseFloat(beatPrice) : 0;
+      const beat = await createBeat({
+        name: beatName,
+        description: beatDescription || undefined,
+        bpm: beatBpm ? parseInt(beatBpm) : undefined,
+        key: beatKey || undefined,
+        genre_id: beatGenreId ? parseInt(beatGenreId) : undefined,
+        prices: { base: price, premium: price * 2, exclusive: price * 5 },
+      });
+
+      // Upload file if selected
+      if (selectedFile && beat.id) {
+        const ext = selectedFile.name.split(".").pop()?.toLowerCase();
+        const fileType = ext === "wav" ? "wav" : "mp3";
+        await uploadBeatAsset(beat.id, {
+          license_code: "base",
+          type: fileType,
+          file: selectedFile,
+        });
+      }
+
+      return beat;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-beats"] });
+      queryClient.invalidateQueries({ queryKey: ["beats"] });
+      closeUpload();
+    },
+    onError: (err: Error) => {
+      setSubmitError(err.message);
+    },
+  });
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/auth");
+      return;
+    }
+
+    if (!isLoading && (!user || isError)) {
+      navigate("/auth");
+    }
+  }, [user, isLoading, isError, navigate, token]);
 
   const closeUpload = () => {
     setIsUploadOpen(false);
-    setSelectedFileName(null);
+    setSelectedFile(null);
+    setBeatName("");
+    setBeatGenreId("");
+    setBeatBpm("");
+    setBeatKey("");
+    setBeatPrice("");
+    setBeatDescription("");
+    setSubmitError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
+
+  const getBasePrice = (beat: Beat) => {
+    const base = beat.licenses?.find((l) => l.code === "base");
+    return base ? `$${base.price}` : "—";
+  };
+
+  if (!token || isLoading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <p className="font-black uppercase tracking-widest text-xs">
+          Loading profile...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans pb-32">
@@ -68,7 +184,7 @@ const Profile = () => {
 
       <main className="max-w-7xl mx-auto px-6 -mt-24 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Left Column: Profile Card */}
           <div className="space-y-6">
             <Card className="rounded-none border-4 border-foreground bg-card p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
@@ -78,24 +194,20 @@ const Profile = () => {
                     {user.name[0]}
                   </div>
                 </div>
-                
+
                 <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-1">{user.name}</h1>
                 <div className="flex items-center gap-2 text-muted-foreground text-[10px] font-bold uppercase tracking-widest mb-6">
                   <Mail className="w-3 h-3" /> {user.email}
                 </div>
 
-                <div className="w-full grid grid-cols-3 gap-2 border-y-2 border-foreground/10 py-6 mb-6">
+                <div className="w-full grid grid-cols-2 gap-2 border-y-2 border-foreground/10 py-6 mb-6">
                   <div className="flex flex-col items-center">
-                    <span className="text-xl font-black">{user.followers}</span>
-                    <span className="text-[8px] font-black uppercase text-muted-foreground">Followers</span>
-                  </div>
-                  <div className="flex flex-col items-center border-x-2 border-foreground/10">
-                    <span className="text-xl font-black">{user.plays}</span>
-                    <span className="text-[8px] font-black uppercase text-muted-foreground">Plays</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-xl font-black">{user.tracks}</span>
+                    <span className="text-xl font-black">{myBeats.length}</span>
                     <span className="text-[8px] font-black uppercase text-muted-foreground">Tracks</span>
+                  </div>
+                  <div className="flex flex-col items-center border-l-2 border-foreground/10">
+                    <span className="text-xl font-black">{user.role === 1 ? "Producer" : "User"}</span>
+                    <span className="text-[8px] font-black uppercase text-muted-foreground">Role</span>
                   </div>
                 </div>
 
@@ -117,7 +229,7 @@ const Profile = () => {
                 </div>
               </div>
               <div className="text-4xl font-black mb-6 italic text-primary">
-                ${user.balance}
+                ${user.balance ?? "0.00"}
               </div>
               <Button className="w-full h-10 rounded-none bg-background text-foreground border-2 border-primary font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-white transition-all">
                 <Plus className="w-4 h-4 mr-1" /> Top Up Balance
@@ -130,35 +242,71 @@ const Profile = () => {
             <Card className="rounded-none border-4 border-foreground bg-card p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-full">
               <h2 className="text-2xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-6">About Me</h2>
               <p className="text-sm font-bold text-muted-foreground leading-relaxed mb-8">
-                {user.bio}
+                {user.about ?? "No bio yet."}
               </p>
 
               <div className="space-y-6">
                 <h3 className="text-xl font-black uppercase italic tracking-tight flex items-center gap-2">
-                  <Music className="w-5 h-5 text-primary" /> My Tracks
+                  My Tracks
                 </h3>
-                
-                <div className="grid gap-4">
-                  {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <motion.div
-                      key={i}
-                      whileHover={{ x: 10 }}
-                      className="p-4 border-2 border-foreground bg-elevate-1 flex items-center gap-4 group cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+
+                {myBeats.length === 0 ? (
+                  <div className="text-center py-12 border-2 border-dashed border-foreground/20">
+                    <p className="font-black uppercase italic text-muted-foreground tracking-widest text-sm">No tracks uploaded yet</p>
+                    <Button
+                      onClick={() => setIsUploadOpen(true)}
+                      className="mt-4 rounded-none border-2 border-foreground font-black uppercase text-xs"
                     >
-                      <div className="w-10 h-10 bg-primary flex items-center justify-center shrink-0 border-2 border-foreground text-foreground">
-                        <Play className="w-6 h-6 fill-background" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-black uppercase italic tracking-tight text-sm">Vampire Drill #{i}</h4>
-                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Uploaded {i} days ago • 140 BPM</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <Badge variant="outline" className="rounded-none border-foreground/20 font-black uppercase text-[8px]">Drill</Badge>
-                        <span className="font-black text-xs">$29.99</span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                      Upload Your First Beat
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {myBeats.map((beat) => (
+                      <motion.div
+                        key={beat.id}
+                        whileHover={{ x: 10 }}
+                        className="p-4 border-2 border-foreground bg-elevate-1 flex items-center gap-4 group cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
+                      >
+                        <Button
+                          size="icon"
+                          className="w-10 h-10 bg-primary flex items-center justify-center shrink-0 border-2 border-foreground text-foreground rounded-none"
+                          onClick={(e) => { e.stopPropagation(); play(beat); }}
+                        >
+                          {isActive(beat.id) && isPlaying ? (
+                            <Pause className="w-5 h-5 fill-background" />
+                          ) : (
+                            <Play className="w-5 h-5 fill-background" />
+                          )}
+                        </Button>
+                        <div className="flex-1">
+                          <h4 className="font-black uppercase italic tracking-tight text-sm">{beat.name}</h4>
+                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                            {beat.bpm ? `${beat.bpm} BPM` : ""} {beat.key ? `• ${beat.key}` : ""}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          {beat.genre && (
+                            <Badge variant="outline" className="rounded-none border-foreground/20 font-black uppercase text-[8px]">{beat.genre.name}</Badge>
+                          )}
+                          <span className="font-black text-xs">{getBasePrice(beat)}</span>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                            disabled={deleteBeatMutation.isPending}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteTarget(beat.id);
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </div>
             </Card>
           </div>
@@ -170,7 +318,7 @@ const Profile = () => {
       <AnimatePresence>
         {isUploadOpen && (
           <div className="fixed inset-0 z-100 flex items-center justify-center p-6">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -193,9 +341,9 @@ const Profile = () => {
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Share your sound with the world</p>
                   </div>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={closeUpload}
                   className="rounded-none border-2 border-foreground hover:bg-primary transition-colors"
                 >
@@ -207,29 +355,33 @@ const Profile = () => {
                 className="space-y-6"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  closeUpload();
+                  setSubmitError(null);
+                  createBeatMutation.mutate();
                 }}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label className="text-xs font-black uppercase tracking-widest">Beat Name</Label>
-                    <Input 
-                      placeholder="e.g. DARK NIGHT" 
+                    <Input
+                      required
+                      placeholder="e.g. DARK NIGHT"
                       className="rounded-none border-2 border-foreground bg-elevate-1 focus:border-primary transition-all font-bold uppercase italic"
                       data-testid="input-beat-name"
+                      value={beatName}
+                      onChange={(e) => setBeatName(e.target.value)}
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label className="text-xs font-black uppercase tracking-widest">Genre</Label>
-                    <Select>
+                    <Select value={beatGenreId} onValueChange={setBeatGenreId}>
                       <SelectTrigger className="rounded-none border-2 border-foreground bg-elevate-1 font-bold uppercase">
                         <SelectValue placeholder="Select Genre" />
                       </SelectTrigger>
                       <SelectContent className="rounded-none border-2 border-foreground">
-                        {GENRES.map(genre => (
-                          <SelectItem key={genre} value={genre.toLowerCase()} className="font-bold uppercase italic">
-                            {genre}
+                        {genres.map((genre) => (
+                          <SelectItem key={genre.id} value={String(genre.id)}>
+                            {genre.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -238,31 +390,47 @@ const Profile = () => {
 
                   <div className="space-y-2">
                     <Label className="text-xs font-black uppercase tracking-widest">BPM</Label>
-                    <Input 
-                      type="number" 
-                      placeholder="140" 
+                    <Input
+                      type="number"
+                      placeholder="140"
                       className="rounded-none border-2 border-foreground bg-elevate-1 font-bold"
                       data-testid="input-beat-bpm"
+                      value={beatBpm}
+                      onChange={(e) => setBeatBpm(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-xs font-black uppercase tracking-widest">Key</Label>
+                    <Input
+                      placeholder="Am"
+                      className="rounded-none border-2 border-foreground bg-elevate-1 font-bold"
+                      value={beatKey}
+                      onChange={(e) => setBeatKey(e.target.value)}
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label className="text-xs font-black uppercase tracking-widest">Base Price ($)</Label>
-                    <Input 
-                      type="number" 
-                      placeholder="29.99" 
+                    <Input
+                      type="number"
+                      placeholder="29.99"
                       className="rounded-none border-2 border-foreground bg-elevate-1 font-bold"
                       data-testid="input-beat-price"
+                      value={beatPrice}
+                      onChange={(e) => setBeatPrice(e.target.value)}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-xs font-black uppercase tracking-widest">Description</Label>
-                  <Textarea 
-                    placeholder="Tell us about the mood, energy, or inspiration..." 
+                  <Textarea
+                    placeholder="Tell us about the mood, energy, or inspiration..."
                     className="rounded-none border-2 border-foreground bg-elevate-1 font-bold h-24"
                     data-testid="textarea-beat-description"
+                    value={beatDescription}
+                    onChange={(e) => setBeatDescription(e.target.value)}
                   />
                 </div>
 
@@ -276,7 +444,7 @@ const Profile = () => {
                     data-testid="input-beat-file"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      setSelectedFileName(file ? file.name : null);
+                      setSelectedFile(file ?? null);
                     }}
                   />
                   <div
@@ -291,7 +459,7 @@ const Profile = () => {
                       e.stopPropagation();
                       const file = e.dataTransfer.files?.[0];
                       if (file) {
-                        setSelectedFileName(file.name);
+                        setSelectedFile(file);
                       }
                     }}
                   >
@@ -300,8 +468,8 @@ const Profile = () => {
                     </div>
                     <div className="text-center">
                       <p className="font-black uppercase italic text-sm">
-                        {selectedFileName
-                          ? `Selected file: ${selectedFileName}`
+                        {selectedFile
+                          ? `Selected file: ${selectedFile.name}`
                           : "Drag & Drop or Click to Browse"}
                       </p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">
@@ -311,8 +479,12 @@ const Profile = () => {
                   </div>
                 </div>
 
+                {submitError && (
+                  <p className="text-red-500 text-xs font-bold uppercase tracking-widest">{submitError}</p>
+                )}
+
                 <div className="flex gap-4 pt-4">
-                  <Button 
+                  <Button
                     type="button"
                     variant="outline"
                     onClick={closeUpload}
@@ -320,14 +492,60 @@ const Profile = () => {
                   >
                     Cancel
                   </Button>
-                  <Button 
+                  <Button
                     type="submit"
-                    className="flex-1 rounded-none h-14 bg-primary text-background border-2 border-foreground font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                    disabled={createBeatMutation.isPending}
+                    className="flex-1 rounded-none h-14 bg-primary text-background border-2 border-foreground font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all disabled:opacity-60"
                   >
-                    Publish Beat
+                    {createBeatMutation.isPending ? "Publishing..." : "Publish Beat"}
                   </Button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {deleteTarget !== null && (
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-background/80 backdrop-blur-md"
+              onClick={() => setDeleteTarget(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-sm bg-background border-4 border-foreground p-8 shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] text-center"
+            >
+              <div className="w-16 h-16 bg-destructive/10 border-2 border-destructive flex items-center justify-center mx-auto mb-6">
+                <Trash2 className="w-8 h-8 text-destructive" />
+              </div>
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Warning</h2>
+              <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-8">Delete beat?</p>
+              <div className="flex gap-4">
+                <Button
+                  onClick={() => setDeleteTarget(null)}
+                  variant="outline"
+                  className="flex-1 rounded-none h-12 border-2 border-foreground font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                >
+                  No
+                </Button>
+                <Button
+                  onClick={() => {
+                    deleteBeatMutation.mutate(deleteTarget);
+                    setDeleteTarget(null);
+                  }}
+                  className="flex-1 rounded-none h-12 bg-destructive text-destructive-foreground border-2 border-foreground font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all hover:bg-destructive/90"
+                >
+                  Yes
+                </Button>
+              </div>
             </motion.div>
           </div>
         )}

@@ -7,14 +7,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 
-const Auth = () => {
-    
-    const navigate = useNavigate();
-    const [isLogin, setIsLogin] = useState(true);
+import { register, login } from "@/api/auth";
 
-  const handleSubmit = (e: React.FormEvent) => {
+const Auth = () => {
+  const navigate = useNavigate();
+  const [isLogin, setIsLogin] = useState(true);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    navigate("/");
+    setError(null);
+    setSubmitting(true);
+
+    try {
+      if (isLogin) {
+        const data = await login({ email, password });
+        localStorage.setItem("authToken", data.token);
+        navigate("/");
+        return;
+      }
+
+      const data = await register({
+        name,
+        email,
+        password,
+        passwordConfirmation,
+      });
+
+      localStorage.setItem("authToken", data.token);
+      navigate("/");
+    } catch (err: any) {
+      setError(err?.message ?? "Something went wrong");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -46,51 +78,77 @@ const Auth = () => {
             {!isLogin && (
               <div className="space-y-4 pt-2 pb-2">
                 <Label className="font-black uppercase text-[10px] tracking-widest">User name</Label>
-                <Input 
+                <Input
                   required
                   type="text"
                   placeholder="NewUser123"
                   className="rounded-none border-2 border-foreground h-12 bg-background font-bold"
-                  />
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
             )}
 
             <div className="space-y-2">
               <Label className="font-black uppercase text-[10px] tracking-widest">Email Address</Label>
-              <Input 
-                required 
-                type="email" 
-                placeholder="PRODUCER@EXCHANGE.COM" 
+              <Input
+                required
+                type="email"
+                placeholder="PRODUCER@EXCHANGE.COM"
                 className="rounded-none border-2 border-foreground h-12 bg-background font-bold"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
               <Label className="font-black uppercase text-[10px] tracking-widest">Password</Label>
-              <Input 
-                required 
-                type="password" 
-                placeholder="••••••••" 
+              <Input
+                required
+                type="password"
+                placeholder="••••••••"
                 className="rounded-none border-2 border-foreground h-12 bg-background font-bold"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
             {!isLogin && (
               <div className="space-y-2">
-                <Label className="font-black uppercase text-[10px] tracking-widest">Confirm Password</Label>
-                <Input 
-                  required 
-                  type="password" 
-                  placeholder="••••••••" 
+                <Label className="font-black uppercase text-[10px] tracking-widest">
+                  Confirm Password
+                </Label>
+                <Input
+                  required
+                  type="password"
+                  placeholder="••••••••"
                   className="rounded-none border-2 border-foreground h-12 bg-background font-bold"
+                  value={passwordConfirmation}
+                  onChange={(e) => setPasswordConfirmation(e.target.value)}
                 />
               </div>
             )}
 
             
 
-            <Button type="submit" className="w-full h-14 rounded-none border-2 border-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-primary text-background font-black uppercase tracking-widest text-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all">
-              {isLogin ? "Sign In" : "Create Account"}
+            {error && (
+              <p className="text-red-500 text-xs font-bold uppercase tracking-widest">
+                {error}
+              </p>
+            )}
+
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="w-full h-14 rounded-none border-2 border-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-primary text-background font-black uppercase tracking-widest text-sm hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {submitting
+                ? isLogin
+                  ? "Signing In..."
+                  : "Creating..."
+                : isLogin
+                ? "Sign In"
+                : "Create Account"}
             </Button>
           </form>
 
