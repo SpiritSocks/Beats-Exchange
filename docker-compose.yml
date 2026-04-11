@@ -1,0 +1,70 @@
+services:
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: beats_app
+    working_dir: /var/www
+    volumes:
+      - ./backend/src:/var/www
+      - ./backend/docker/php/99-uploads.ini:/usr/local/etc/php/conf.d/99-uploads.ini
+    depends_on:
+      - db
+    command: >
+      sh -c "until php artisan migrate --force; do
+        echo 'Waiting for database...';
+        sleep 3;
+      done;
+      php artisan db:seed --force;
+      php-fpm"
+
+  nginx:
+    image: nginx:alpine
+    container_name: beats_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend/src:/var/www
+      - ./backend/docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: beats_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - nginx
+
+  db:
+    image: mysql:8.0
+    container_name: beats_db
+    environment:
+      MYSQL_DATABASE: beats
+      MYSQL_USER: beats
+      MYSQL_PASSWORD: beats
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - beats_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: beats_mailhog
+    ports:
+      - "8025:8025"
+
+volumes:
+  beats_db:
