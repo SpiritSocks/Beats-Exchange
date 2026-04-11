@@ -1,5 +1,5 @@
 import { apiFetch, API_BASE_URL } from "./client";
-import type { Beat, BeatAsset } from "./types";
+import type { Beat, BeatAsset, PaginatedResponse } from "./types";
 
 export function fetchLatestBeats(): Promise<Beat[]> {
   return apiFetch("/api/beats/latest");
@@ -34,6 +34,22 @@ export function getStreamUrl(beat: Beat): string | null {
     baseLicense?.assets?.find((a: BeatAsset) => a.type === "wav");
   if (!asset) return null;
   return `${API_BASE_URL}/api/stream/${asset.id}`;
+}
+
+export function searchBeats(params: {
+  q?: string;
+  genre_id?: number;
+  bpm_min?: number;
+  bpm_max?: number;
+  page?: number;
+}): Promise<PaginatedResponse<Beat>> {
+  const searchParams = new URLSearchParams();
+  if (params.q) searchParams.set("q", params.q);
+  if (params.genre_id) searchParams.set("genre_id", String(params.genre_id));
+  if (params.bpm_min) searchParams.set("bpm_min", String(params.bpm_min));
+  if (params.bpm_max) searchParams.set("bpm_max", String(params.bpm_max));
+  if (params.page) searchParams.set("page", String(params.page));
+  return apiFetch(`/api/beats/search?${searchParams.toString()}`);
 }
 
 export function deleteBeat(id: number): Promise<{ message: string }> {

@@ -1,26 +1,17 @@
 import { motion } from "framer-motion";
-import { Search, Play, Pause, User } from "lucide-react";
+import { Play, Pause, ShoppingCart, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { useNavigate } from "react-router-dom";
-import { logout as apiLogout } from "@/api/auth";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchLatestBeats } from "@/api/beats";
 import { usePlayer } from "@/context/PlayerContext";
+import { useCart } from "@/context/CartContext";
 import type { Beat } from "@/api/types";
-import { useState } from "react";
 
 const Home = () => {
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { play, isPlaying, isActive } = usePlayer();
-
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    typeof window !== "undefined" && !!localStorage.getItem("authToken"),
-  );
+  const { addToCart, isInCart } = useCart();
 
   const { data: latestBeats = [] } = useQuery<Beat[]>({
     queryKey: ["beats", "latest"],
@@ -32,20 +23,6 @@ const Home = () => {
     return base ? `$${base.price}` : "—";
   };
 
-  const handleAuthButtonClick = async () => {
-    if (!isLoggedIn) {
-      navigate("/auth");
-      return;
-    }
-
-    try { await apiLogout(); } catch {}
-
-    localStorage.removeItem("authToken");
-    queryClient.clear();
-    setIsLoggedIn(false);
-    navigate("/");
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground font-sans overflow-hidden">
       <div className="fixed inset-0 pointer-events-none opacity-20 overflow-hidden">
@@ -54,43 +31,7 @@ const Home = () => {
         <div className="absolute top-1/4 left-1/2 w-75 h-75 border-40 border-primary rounded-full opacity-10 animate-spin-slow" />
       </div>
 
-      <div className="relative z-10 flex flex-col h-screen pb-24">
-        <header className="px-6 py-4 flex items-center justify-between border-b border-border bg-background/50 backdrop-blur-xl">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <span className="text-xl font-black italic text-background">B</span>
-            </div>
-            <h1 className="text-2xl font-black uppercase tracking-tighter italic">Beat Exchange</h1>
-          </div>
-
-          <div className="flex-1 max-w-md mx-8">
-            <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <Input
-                placeholder="Search beats, producers, genres..."
-                className="pl-10 bg-elevate-1 border-2 border-transparent focus:border-primary focus:ring-0 rounded-none transition-all uppercase text-xs font-bold"
-              />
-            </div>
-          </div>
-
-          <nav className="flex items-center gap-6">
-            <ThemeToggle />
-            <Button onClick={() => navigate("/explore")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:bg-primary hover:text-primary-foreground">
-              Explore
-            </Button>
-            <Button onClick={() => navigate("/producers")} variant="ghost" className="font-bold uppercase text-xs tracking-widest hover:bg-primary hover:text-primary-foreground">
-              Producers
-            </Button>
-            {isLoggedIn && <User onClick={() => navigate("/profile")} className="w-6 h-6 hover:text-primary cursor-pointer" />}
-            <Button
-              onClick={handleAuthButtonClick}
-              className="font-bold uppercase text-xs tracking-widest px-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all hover:bg-primary hover:text-primary-foreground hover:border-background"
-            >
-              {isLoggedIn ? "Log out" : "Sign in"}
-            </Button>
-          </nav>
-        </header>
-
+      <div className="relative z-10 flex flex-col pb-24">
         <main className="flex-1 overflow-hidden flex gap-0">
           <section className="flex-1 p-8 overflow-y-auto">
             <div className="flex items-center justify-between mb-8">
@@ -141,7 +82,14 @@ const Home = () => {
                       </div>
                       <div className="p-2.5 flex items-center justify-between bg-white text-black border-t-2 border-foreground">
                         <span className="text-sm font-black">{getBasePrice(beat)}</span>
-                        <Button size="sm" className="rounded-none font-bold uppercase text-[9px] h-7 px-3">Buy</Button>
+                        <Button
+                          size="sm"
+                          className="rounded-none font-bold uppercase text-[9px] h-7 px-3"
+                          onClick={(e) => { e.stopPropagation(); addToCart(beat); }}
+                          disabled={isInCart(beat.id)}
+                        >
+                          {isInCart(beat.id) ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
+                        </Button>
                       </div>
                     </Card>
                   </motion.div>

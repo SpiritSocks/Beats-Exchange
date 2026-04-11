@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,40 +22,27 @@ export default function Producers() {
   const producers = data?.data ?? [];
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground">
-
-      <div className="bg-card/30 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-auto px-6 py-6 flex flex-col md:flex-row items-center gap-6 justify-between">
-          <div className="flex items-center gap-6">
-            <Button onClick={() => navigate("/")} variant="ghost" size="icon" className="rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all bg-background">
-              <ArrowLeft className="w-6 h-6" />
-            </Button>
-            <div className="flex flex-col">
-              <h1 className="text-6xl font-black uppercase italic tracking-tighter leading-none self-start">Producers</h1>
-            </div>
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-primary-foreground p-8 pb-32">
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4 justify-between mb-8">
+        <h2 className="text-4xl font-black uppercase italic tracking-tighter">Producers</h2>
+        <div className="flex gap-4">
+          <div className="relative group md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Input
+              placeholder="Search by name..."
+              className="pl-10 h-10 bg-background border-2 border-foreground rounded-none focus:ring-0 focus:border-primary transition-all uppercase text-[10px] font-black w-full"
+            />
           </div>
-
-          <div className="flex-end flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1 group md:w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <Input
-                placeholder="Search by name..."
-                className="pl-10 h-12 bg-background border-2 border-foreground rounded-none focus:ring-0 focus:border-primary transition-all uppercase text-[10px] font-black w-full"
-              />
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" size="icon" className="w-12 h-12 rounded-none border-2 border-foreground">
-                <SlidersHorizontal className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
+          <Button variant="outline" size="icon" className="w-10 h-10 rounded-none border-2 border-foreground">
+            <SlidersHorizontal className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-6 py-12">
+      <main>
 
         {/* Filters */}
-        <div className="flex flex-row justify-center gap-4 mb-10 ">
+        <div className="flex flex-row justify-center gap-4 mb-8">
           {["All Creators"].map((filter) => (
             <Badge
               key={filter}
@@ -72,7 +59,7 @@ export default function Producers() {
             <p className="font-black uppercase italic text-muted-foreground tracking-widest">No producers found</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {producers.map((producer, index) => (
               <motion.div
                 key={producer.id}

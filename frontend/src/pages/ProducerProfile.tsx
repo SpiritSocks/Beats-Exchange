@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Play, Pause, Heart, Share2 } from "lucide-react";
+import { ArrowLeft, Play, Pause, Heart, Share2, ShoppingCart, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,10 +8,12 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchProducer } from "@/api/producers";
 import type { Beat } from "@/api/types";
 import { usePlayer } from "@/context/PlayerContext";
+import { useCart } from "@/context/CartContext";
 
 const ProducerProfile = () => {
   const navigate = useNavigate();
   const { play, isPlaying, isActive } = usePlayer();
+  const { addToCart, isInCart } = useCart();
   const { id } = useParams();
 
   const { data, isLoading } = useQuery({
@@ -114,7 +116,14 @@ const ProducerProfile = () => {
                   <div className="flex items-center gap-4">
                     <span className="font-black text-lg">{getBasePrice(beat)}</span>
                     <Button size="icon" variant="ghost" className="hover:text-primary"><Heart className="w-5 h-5" /></Button>
-                    <Button size="sm" className="rounded-none font-black uppercase text-[10px] border-2 border-foreground">Buy</Button>
+                    <Button
+                      size="sm"
+                      className="rounded-none font-black uppercase text-[10px] border-2 border-foreground"
+                      onClick={(e) => { e.stopPropagation(); addToCart(beat); }}
+                      disabled={isInCart(beat.id)}
+                    >
+                      {isInCart(beat.id) ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
+                    </Button>
                   </div>
                 </motion.div>
               ))}

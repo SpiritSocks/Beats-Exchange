@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Music, Play, Pause } from "lucide-react";
+import { ArrowLeft, Music, Play, Pause, ShoppingCart, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,11 +8,13 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchGenre } from "@/api/genres";
 import type { Beat } from "@/api/types";
 import { usePlayer } from "@/context/PlayerContext";
+import { useCart } from "@/context/CartContext";
 
 const GenreProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { play, isPlaying, isActive } = usePlayer();
+  const { addToCart, isInCart } = useCart();
 
   const { data, isLoading } = useQuery({
     queryKey: ["genre", id],
@@ -118,8 +120,13 @@ const GenreProfile = () => {
 
                       <div className="mt-4 flex items-center justify-between pt-3 border-t border-foreground/10">
                         <span className="font-black text-sm">{getBasePrice(beat)}</span>
-                        <Button size="sm" className="rounded-none h-8 font-black uppercase text-[9px] border-2 border-foreground bg-primary text-background hover:bg-foreground hover:text-primary px-3">
-                          Buy
+                        <Button
+                          size="sm"
+                          className="rounded-none h-8 font-black uppercase text-[9px] border-2 border-foreground bg-primary text-background hover:bg-foreground hover:text-primary px-3"
+                          onClick={(e) => { e.stopPropagation(); addToCart(beat); }}
+                          disabled={isInCart(beat.id)}
+                        >
+                          {isInCart(beat.id) ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
                         </Button>
                       </div>
                     </div>

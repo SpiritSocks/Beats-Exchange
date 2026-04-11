@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, LayoutGrid } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -17,16 +17,7 @@ export default function Explore() {
 
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-8 pb-32 overflow-y-auto">
-      <header className="mb-12 flex items-center gap-6">
-        <Button onClick={() => navigate("/")} variant='ghost' size="icon" className="rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all bg-background">
-          <ArrowLeft className="w-6 h-6" />
-        </Button>
-        <div>
-          <h1 className="text-6xl font-black uppercase italic tracking-tighter mb-2">Explore</h1>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-background text-foreground pb-32 overflow-y-auto p-8">
       {/* Genres Grid */}
       <section className="mb-16">
         <div className="flex items-center justify-between mb-6">
@@ -37,7 +28,7 @@ export default function Explore() {
           <Button onClick={() => navigate("/categories")} variant="link" className="font-black uppercase text-xs hover:text-primary transition-colors">View All Genres</Button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {genres.map((genre, i) => (
+          {genres.slice(0, 15).map((genre, i) => (
             <motion.div
               key={genre.id}
               initial={{ opacity: 0, scale: 0.9 }}
