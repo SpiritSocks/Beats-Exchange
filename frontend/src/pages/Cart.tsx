@@ -2,19 +2,25 @@ import { motion } from "framer-motion";
 import { Trash2, ShoppingCart, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useCart } from "@/context/CartContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useCart, type LicenseCode } from "@/context/CartContext";
 import { usePlayer } from "@/context/PlayerContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Cart() {
-  const { items, removeFromCart, clearCart, totalPrice } = useCart();
+  const { items, removeFromCart, updateLicense, clearCart, totalPrice } = useCart();
   const { play, isPlaying, isActive } = usePlayer();
   const navigate = useNavigate();
 
   const getPrice = (item: (typeof items)[0]) => {
     const license = item.beat.licenses?.find((l) => l.code === item.licenseCode);
-    return license ? `$${license.price}` : "—";
+    return license ? `${license.price} ₽` : "—";
   };
 
   return (
@@ -23,7 +29,7 @@ export default function Cart() {
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-4xl font-black uppercase italic tracking-tighter flex items-center gap-3">
             <ShoppingCart className="w-8 h-8" />
-            Cart
+            Корзина
           </h2>
           {items.length > 0 && (
             <Button
@@ -31,7 +37,7 @@ export default function Cart() {
               onClick={clearCart}
               className="rounded-none border-2 border-foreground font-black uppercase text-xs"
             >
-              Clear All
+              Очистить
             </Button>
           )}
         </div>
@@ -40,13 +46,13 @@ export default function Cart() {
           <div className="text-center py-20 border-2 border-dashed border-foreground/20">
             <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
             <p className="font-black uppercase italic text-muted-foreground tracking-widest mb-6">
-              Your cart is empty
+              Корзина пуста
             </p>
             <Button
               onClick={() => navigate("/")}
               className="rounded-none border-2 border-foreground font-black uppercase text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
             >
-              Browse Beats
+              Смотреть биты
             </Button>
           </div>
         ) : (
@@ -83,9 +89,28 @@ export default function Cart() {
                       </p>
                     </div>
 
-                    <Badge className="rounded-none border border-foreground bg-elevate-1 font-black uppercase text-[9px] shrink-0">
-                      {item.licenseCode}
-                    </Badge>
+                    <Select
+                      value={item.licenseCode}
+                      onValueChange={(v) => updateLicense(item.beat.id, v as LicenseCode)}
+                    >
+                      <SelectTrigger className="w-28 h-8 rounded-none border-2 border-foreground font-black uppercase text-[9px] shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-none border-2 border-foreground">
+                        {(["base", "premium", "ultimate", "exclusive"] as const).map((code) => {
+                          const license = item.beat.licenses?.find((l) => l.code === code);
+                          return license ? (
+                            <SelectItem
+                              key={code}
+                              value={code}
+                              className="font-bold uppercase text-[10px]"
+                            >
+                              {code} — {license.price} ₽
+                            </SelectItem>
+                          ) : null;
+                        })}
+                      </SelectContent>
+                    </Select>
 
                     <span className="font-black text-lg shrink-0">{getPrice(item)}</span>
 
@@ -106,12 +131,12 @@ export default function Cart() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                    {items.length} {items.length === 1 ? "item" : "items"}
+                    {items.length} {items.length === 1 ? "товар" : "товаров"}
                   </p>
-                  <p className="text-3xl font-black">${totalPrice.toFixed(2)}</p>
+                  <p className="text-3xl font-black">{totalPrice.toFixed(2)} ₽</p>
                 </div>
                 <Button className="rounded-none border-2 border-foreground font-black uppercase text-sm h-12 px-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all">
-                  Checkout
+                  Оформить заказ
                 </Button>
               </div>
             </Card>

@@ -47,7 +47,7 @@ const Auth = () => {
       localStorage.setItem("authToken", data.token);
       navigate("/");
     } catch (err: any) {
-      setError(err?.message ?? "Something went wrong");
+      setError(err?.message ?? "Что-то пошло не так");
     } finally {
       setSubmitting(false);
     }
@@ -72,16 +72,16 @@ const Auth = () => {
 
         <Card className="rounded-none border-4 border-foreground bg-card shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8">
           <h1 className="text-4xl font-black uppercase italic tracking-tighter mb-2 text-center">
-            {isLogin ? "Welcome Back" : "Join the Club!"}
+            {isLogin ? "С возвращением" : "Присоединяйся!"}
           </h1>
           <p className="text-center text-muted-foreground font-bold text-[10px] uppercase tracking-widest mb-8">
-            {isLogin ? "Enter your credentials" : "Create your account to start"}
+            {isLogin ? "Введите свои данные" : "Создайте аккаунт чтобы начать"}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {!isLogin && (
               <div className="space-y-4 pt-2 pb-2">
-                <Label className="font-black uppercase text-[10px] tracking-widest">User name</Label>
+                <Label className="font-black uppercase text-[10px] tracking-widest">Имя пользователя</Label>
                 <Input
                   required
                   type="text"
@@ -94,7 +94,7 @@ const Auth = () => {
             )}
 
             <div className="space-y-2">
-              <Label className="font-black uppercase text-[10px] tracking-widest">Email Address</Label>
+              <Label className="font-black uppercase text-[10px] tracking-widest">Электронная почта</Label>
               <Input
                 required
                 type="email"
@@ -106,7 +106,7 @@ const Auth = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="font-black uppercase text-[10px] tracking-widest">Password</Label>
+              <Label className="font-black uppercase text-[10px] tracking-widest">Пароль</Label>
               <Input
                 required
                 type="password"
@@ -120,7 +120,7 @@ const Auth = () => {
             {!isLogin && (
               <div className="space-y-2">
                 <Label className="font-black uppercase text-[10px] tracking-widest">
-                  Confirm Password
+                  Подтвердите пароль
                 </Label>
                 <Input
                   required
@@ -148,11 +148,11 @@ const Auth = () => {
             >
               {submitting
                 ? isLogin
-                  ? "Signing In..."
-                  : "Creating..."
+                  ? "Вход..."
+                  : "Создание..."
                 : isLogin
-                ? "Sign In"
-                : "Create Account"}
+                ? "Войти"
+                : "Создать аккаунт"}
             </Button>
           </form>
 
@@ -161,13 +161,13 @@ const Auth = () => {
               onClick={() => setIsLogin(!isLogin)}
               className="text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors"
             >
-              {isLogin ? "Need an account? Sign Up" : "Already have an account? Sign In"}
+              {isLogin ? "Нет аккаунта? Зарегистрируйтесь" : "Уже есть аккаунт? Войти"}
             </button>
           </div>
         </Card>
 
           <Button onClick = {() => navigate("/")} variant="ghost" className="mt-6 w-full font-black uppercase text-[10px] tracking-widest gap-2">
-            <ArrowLeft className="w-3 h-3" /> Back to Home
+            <ArrowLeft className="w-3 h-3" /> На главную
           </Button>
       </motion.div>
     </div>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Play, Pause, ShoppingCart, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,11 +8,14 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchLatestBeats } from "@/api/beats";
 import { usePlayer } from "@/context/PlayerContext";
 import { useCart } from "@/context/CartContext";
+import LicensePickerDialog from "@/components/LicensePickerDialog";
 import type { Beat } from "@/api/types";
 
 const Home = () => {
   const { play, isPlaying, isActive } = usePlayer();
   const { addToCart, isInCart } = useCart();
+
+  const [pickerBeat, setPickerBeat] = useState<Beat | null>(null);
 
   const { data: latestBeats = [] } = useQuery<Beat[]>({
     queryKey: ["beats", "latest"],
@@ -20,7 +24,7 @@ const Home = () => {
 
   const getBasePrice = (beat: Beat) => {
     const base = beat.licenses?.find((l) => l.code === "base");
-    return base ? `$${base.price}` : "—";
+    return base ? `${base.price} ₽` : "—";
   };
 
   return (
@@ -35,12 +39,12 @@ const Home = () => {
         <main className="flex-1 overflow-hidden flex gap-0">
           <section className="flex-1 p-8 overflow-y-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-4xl font-black uppercase italic tracking-tighter">Newest Releases</h2>
+              <h2 className="text-4xl font-black uppercase italic tracking-tighter">Новинки</h2>
             </div>
 
             {latestBeats.length === 0 ? (
               <div className="text-center py-20 border-2 border-dashed border-foreground/20">
-                <p className="font-black uppercase italic text-muted-foreground tracking-widest">No beats available yet</p>
+                <p className="font-black uppercase italic text-muted-foreground tracking-widest">Битов пока нет</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-5">
@@ -85,7 +89,7 @@ const Home = () => {
                         <Button
                           size="sm"
                           className="rounded-none font-bold uppercase text-[9px] h-7 px-3"
-                          onClick={(e) => { e.stopPropagation(); addToCart(beat); }}
+                          onClick={(e) => { e.stopPropagation(); setPickerBeat(beat); }}
                           disabled={isInCart(beat.id)}
                         >
                           {isInCart(beat.id) ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
@@ -99,6 +103,13 @@ const Home = () => {
           </section>
         </main>
       </div>
+
+      <LicensePickerDialog
+        beat={pickerBeat}
+        open={!!pickerBeat}
+        onOpenChange={(open) => !open && setPickerBeat(null)}
+        onSelect={(beat, license) => addToCart(beat, license)}
+      />
 
       <style>{`
         @keyframes spin-slow {

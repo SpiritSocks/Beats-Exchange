@@ -1,15 +1,18 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 import type { Beat } from "@/api/types";
 
-type CartItem = {
+export type LicenseCode = "base" | "premium" | "ultimate" | "exclusive";
+
+export type CartItem = {
   beat: Beat;
-  licenseCode: "base" | "premium" | "exclusive";
+  licenseCode: LicenseCode;
 };
 
 type CartContextType = {
   items: CartItem[];
-  addToCart: (beat: Beat, licenseCode?: "base" | "premium" | "exclusive") => void;
+  addToCart: (beat: Beat, licenseCode?: LicenseCode) => void;
   removeFromCart: (beatId: number) => void;
+  updateLicense: (beatId: number, licenseCode: LicenseCode) => void;
   clearCart: () => void;
   isInCart: (beatId: number) => boolean;
   totalPrice: number;
@@ -33,7 +36,7 @@ function saveCart(items: CartItem[]) {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(loadCart);
 
-  const addToCart = useCallback((beat: Beat, licenseCode: "base" | "premium" | "exclusive" = "base") => {
+  const addToCart = useCallback((beat: Beat, licenseCode: LicenseCode = "base") => {
     setItems((prev) => {
       if (prev.some((item) => item.beat.id === beat.id)) return prev;
       const next = [...prev, { beat, licenseCode }];
@@ -45,6 +48,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const removeFromCart = useCallback((beatId: number) => {
     setItems((prev) => {
       const next = prev.filter((item) => item.beat.id !== beatId);
+      saveCart(next);
+      return next;
+    });
+  }, []);
+
+  const updateLicense = useCallback((beatId: number, licenseCode: LicenseCode) => {
+    setItems((prev) => {
+      const next = prev.map((item) =>
+        item.beat.id === beatId ? { ...item, licenseCode } : item
+      );
       saveCart(next);
       return next;
     });
@@ -65,7 +78,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, 0);
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, clearCart, isInCart, totalPrice }}>
+    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateLicense, clearCart, isInCart, totalPrice }}>
       {children}
     </CartContext.Provider>
   );

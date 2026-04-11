@@ -28,17 +28,17 @@ const NotFound = () => {
 
         <div className="space-y-8">
           <p className="text-xl md:text-2xl font-bold uppercase tracking-tight text-muted-foreground max-w-lg mx-auto leading-tight">
-            The beat you're looking for has been dropped, or maybe it never existed in this dimension.
+            Бит, который вы ищете, был удалён или никогда не существовал.
           </p>
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
               <Button onClick={() => navigate("/")} className="h-16 px-3 md:w-56 rounded-none border-4 border-foreground bg-primary text-background text-xl font-black uppercase italic tracking-tighter shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center gap-3 group">
                 <Home className="w-auto h-6 group-hover:animate-bounce" />
-                Home
+                Главная
               </Button>
               <Button onClick={() => navigate('/explore')} variant="outline" className="h-16 px-3 md:w-56 rounded-none border-4 border-foreground bg-background text-foreground text-xl font-black uppercase italic tracking-tighter shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_rgba(255,51,102,1)] transition-all flex items-center gap-3 group">
                 <Search className="w-auto h-6 group-hover:rotate-12 transition-transform group-hover:animate-spin" />
-                Explore Beats
+                Каталог
               </Button>
           </div>
         </div>

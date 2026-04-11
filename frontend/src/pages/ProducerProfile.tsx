@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Play, Pause, Heart, Share2, ShoppingCart, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -9,12 +10,14 @@ import { fetchProducer } from "@/api/producers";
 import type { Beat } from "@/api/types";
 import { usePlayer } from "@/context/PlayerContext";
 import { useCart } from "@/context/CartContext";
+import LicensePickerDialog from "@/components/LicensePickerDialog";
 
 const ProducerProfile = () => {
   const navigate = useNavigate();
   const { play, isPlaying, isActive } = usePlayer();
   const { addToCart, isInCart } = useCart();
   const { id } = useParams();
+  const [pickerBeat, setPickerBeat] = useState<Beat | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["producer", id],
@@ -27,13 +30,13 @@ const ProducerProfile = () => {
 
   const getBasePrice = (beat: Beat) => {
     const base = beat.licenses?.find((l) => l.code === "base");
-    return base ? `$${base.price}` : "—";
+    return base ? `${base.price} ₽` : "—";
   };
 
   if (isLoading || !producer) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-        <p className="font-black uppercase tracking-widest text-xs">Loading producer...</p>
+        <p className="font-black uppercase tracking-widest text-xs">Загрузка продюсера...</p>
       </div>
     );
   }
@@ -47,7 +50,7 @@ const ProducerProfile = () => {
         </div>
         <div className="max-w-7xl mx-auto px-6 h-full flex items-end pb-8 relative z-10">
           <Button onClick={() => navigate("/producers")} variant="outline" className="absolute top-6 left-6 rounded-none border-2 border-foreground bg-background shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Directory
+            <ArrowLeft className="w-4 h-4 mr-2" /> К каталогу
           </Button>
           <div className="flex items-center gap-8">
             <div className="w-32 h-32 bg-background border-4 border-foreground flex items-center justify-center text-6xl font-black italic shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
@@ -58,7 +61,7 @@ const ProducerProfile = () => {
                 {producer.name}
               </h1>
               <div className="flex items-center gap-4 text-background font-black uppercase text-xs tracking-widest">
-                <span>{beats.length} Beats Uploaded</span>
+                <span>{beats.length} битов загружено</span>
               </div>
             </div>
           </div>
@@ -69,24 +72,24 @@ const ProducerProfile = () => {
         {/* Sidebar Info */}
         <div className="space-y-8">
           <Card className="rounded-none border-2 border-foreground p-6 bg-card shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <h2 className="text-xl font-black uppercase italic mb-4">About</h2>
+            <h2 className="text-xl font-black uppercase italic mb-4">О продюсере</h2>
             <p className="text-sm font-bold text-muted-foreground leading-relaxed">
-              {producer.about || "No bio yet."}
+              {producer.about || "Описание пока не добавлено."}
             </p>
             <div className="flex gap-4 mt-6">
               <Button size="icon" variant="outline" className="rounded-none border-2 border-foreground"><Share2 className="w-4 h-4" /></Button>
-              <Button className="flex-1 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black uppercase text-xs">Follow</Button>
+              <Button className="flex-1 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black uppercase text-xs">Подписаться</Button>
             </div>
           </Card>
         </div>
 
         {/* Beats List */}
         <div className="lg:col-span-2 space-y-6">
-          <h2 className="text-3xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-4">Uploaded Beats</h2>
+          <h2 className="text-3xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-4">Загруженные биты</h2>
 
           {beats.length === 0 ? (
             <div className="text-center py-12 border-2 border-dashed border-foreground/20">
-              <p className="font-black uppercase italic text-muted-foreground tracking-widest text-sm">No beats uploaded yet</p>
+              <p className="font-black uppercase italic text-muted-foreground tracking-widest text-sm">Битов пока нет</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -119,7 +122,7 @@ const ProducerProfile = () => {
                     <Button
                       size="sm"
                       className="rounded-none font-black uppercase text-[10px] border-2 border-foreground"
-                      onClick={(e) => { e.stopPropagation(); addToCart(beat); }}
+                      onClick={(e) => { e.stopPropagation(); setPickerBeat(beat); }}
                       disabled={isInCart(beat.id)}
                     >
                       {isInCart(beat.id) ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
@@ -131,6 +134,13 @@ const ProducerProfile = () => {
           )}
         </div>
       </main>
+
+      <LicensePickerDialog
+        beat={pickerBeat}
+        open={!!pickerBeat}
+        onOpenChange={(open) => !open && setPickerBeat(null)}
+        onSelect={(beat, license) => addToCart(beat, license)}
+      />
     </div>
   );
 }

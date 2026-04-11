@@ -23,9 +23,9 @@ export default function Explore() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <LayoutGrid className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-black uppercase italic tracking-tight">Genres</h2>
+            <h2 className="text-xl font-black uppercase italic tracking-tight">Жанры</h2>
           </div>
-          <Button onClick={() => navigate("/categories")} variant="link" className="font-black uppercase text-xs hover:text-primary transition-colors">View All Genres</Button>
+          <Button onClick={() => navigate("/categories")} variant="link" className="font-black uppercase text-xs hover:text-primary transition-colors">Все жанры</Button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {genres.slice(0, 15).map((genre, i) => (
@@ -45,7 +45,7 @@ export default function Explore() {
             </motion.div>
           ))}
           {genres.length === 0 && (
-            <p className="col-span-full text-center text-muted-foreground font-bold uppercase text-xs tracking-widest py-8">No genres found</p>
+            <p className="col-span-full text-center text-muted-foreground font-bold uppercase text-xs tracking-widest py-8">Жанры не найдены</p>
           )}
         </div>
       </section>

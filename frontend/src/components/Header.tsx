@@ -56,7 +56,7 @@ export function Header() {
           <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <span className="text-xl font-black italic text-background">B</span>
           </div>
-          <h1 className="text-2xl font-black uppercase tracking-tighter italic">Beat Exchange</h1>
+          <h1 className="text-2xl font-black uppercase tracking-tighter italic">Beats Exchange</h1>
         </div>
 
         <form onSubmit={handleSearch} className="flex-1 max-w-lg mx-8">
@@ -65,7 +65,7 @@ export function Header() {
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Try searching trap or sad or juice wr..."
+              placeholder="Поиск битов..."
               className="pl-10 bg-elevate-1 border-2 border-transparent focus:border-primary focus:ring-0 rounded-none transition-all uppercase text-xs font-bold"
             />
           </div>
@@ -86,7 +86,7 @@ export function Header() {
             onClick={handleAuthButtonClick}
             className="font-bold uppercase text-xs tracking-widest px-6 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all hover:bg-primary hover:text-primary-foreground hover:border-background"
           >
-            {isLoggedIn ? "Log out" : "Sign in"}
+            {isLoggedIn ? "Выйти" : "Войти"}
           </Button>
         </nav>
       </div>

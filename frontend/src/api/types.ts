@@ -29,7 +29,7 @@ export type BeatAsset = {
 export type BeatLicense = {
   id: number;
   beat_id: number;
-  code: "base" | "premium" | "exclusive";
+  code: "base" | "premium" | "ultimate" | "exclusive";
   price: string;
   is_active: boolean;
   assets: BeatAsset[];

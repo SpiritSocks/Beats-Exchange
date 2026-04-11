@@ -10,6 +10,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import type { Beat, PaginatedResponse } from "@/api/types";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import LicensePickerDialog from "@/components/LicensePickerDialog";
 
 export default function Search() {
   const [searchParams] = useSearchParams();
@@ -17,6 +18,7 @@ export default function Search() {
   const { play, isPlaying, isActive } = usePlayer();
   const { addToCart, isInCart } = useCart();
   const [page, setPage] = useState(1);
+  const [pickerBeat, setPickerBeat] = useState<Beat | null>(null);
 
   const { data } = useQuery<PaginatedResponse<Beat>>({
     queryKey: ["beats", "search", q, page],
@@ -28,18 +30,18 @@ export default function Search() {
 
   const getBasePrice = (beat: Beat) => {
     const base = beat.licenses?.find((l) => l.code === "base");
-    return base ? `$${base.price}` : "\u2014";
+    return base ? `${base.price} ₽` : "\u2014";
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground p-8 pb-32">
       <div className="mb-8">
         <h2 className="text-4xl font-black uppercase italic tracking-tighter">
-          Results for "{q}"
+          Результаты по запросу "{q}"
         </h2>
         {data && (
           <p className="text-muted-foreground font-bold uppercase text-xs tracking-widest mt-2">
-            {data.total} {data.total === 1 ? "result" : "results"} found
+            Найдено: {data.total}
           </p>
         )}
       </div>
@@ -47,7 +49,7 @@ export default function Search() {
       {beats.length === 0 ? (
         <div className="text-center py-20 border-2 border-dashed border-foreground/20">
           <p className="font-black uppercase italic text-muted-foreground tracking-widest">
-            No beats found for "{q}"
+            Ничего не найдено по запросу "{q}"
           </p>
         </div>
       ) : (
@@ -101,7 +103,7 @@ export default function Search() {
                   <Button
                     size="sm"
                     className="rounded-none font-bold uppercase text-[9px] h-7 px-3"
-                    onClick={(e) => { e.stopPropagation(); addToCart(beat); }}
+                    onClick={(e) => { e.stopPropagation(); setPickerBeat(beat); }}
                     disabled={isInCart(beat.id)}
                   >
                     {isInCart(beat.id) ? <Check className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
@@ -121,10 +123,10 @@ export default function Search() {
             onClick={() => setPage((p) => p - 1)}
             className="rounded-none border-2 border-foreground font-black uppercase text-xs"
           >
-            Previous
+            Назад
           </Button>
           <span className="flex items-center font-black uppercase text-xs tracking-widest">
-            Page {data.current_page} of {data.last_page}
+            Стр. {data.current_page} из {data.last_page}
           </span>
           <Button
             variant="outline"
@@ -132,10 +134,16 @@ export default function Search() {
             onClick={() => setPage((p) => p + 1)}
             className="rounded-none border-2 border-foreground font-black uppercase text-xs"
           >
-            Next
+            Далее
           </Button>
         </div>
       )}
+      <LicensePickerDialog
+        beat={pickerBeat}
+        open={!!pickerBeat}
+        onOpenChange={(open) => !open && setPickerBeat(null)}
+        onSelect={(beat, license) => addToCart(beat, license)}
+      />
     </div>
   );
 }

@@ -152,14 +152,14 @@ const Profile = () => {
 
   const getBasePrice = (beat: Beat) => {
     const base = beat.licenses?.find((l) => l.code === "base");
-    return base ? `$${base.price}` : "—";
+    return base ? `${base.price} ₽` : "—";
   };
 
   if (!token || isLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <p className="font-black uppercase tracking-widest text-xs">
-          Loading profile...
+          Загрузка профиля...
         </p>
       </div>
     );
@@ -174,7 +174,7 @@ const Profile = () => {
         </div>
         <div className="max-w-7xl mx-auto px-6 pt-6 relative z-10 flex justify-between items-start">
             <Button onClick={() => navigate("/")} variant="outline" size="sm" className="rounded-none border-2 border-foreground bg-background shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Home
+              <ArrowLeft className="w-4 h-4 mr-2" /> Главная
             </Button>
             <Button onClick={() => navigate("/settings")} variant="outline" size="icon" className="rounded-none border-2 border-foreground bg-background shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
               <Settings className="w-4 h-4" />
@@ -203,11 +203,11 @@ const Profile = () => {
                 <div className="w-full grid grid-cols-2 gap-2 border-y-2 border-foreground/10 py-6 mb-6">
                   <div className="flex flex-col items-center">
                     <span className="text-xl font-black">{myBeats.length}</span>
-                    <span className="text-[8px] font-black uppercase text-muted-foreground">Tracks</span>
+                    <span className="text-[8px] font-black uppercase text-muted-foreground">Треков</span>
                   </div>
                   <div className="flex flex-col items-center border-l-2 border-foreground/10">
-                    <span className="text-xl font-black">{user.role === 1 ? "Producer" : "User"}</span>
-                    <span className="text-[8px] font-black uppercase text-muted-foreground">Role</span>
+                    <span className="text-xl font-black">{user.role === 1 ? "Продюсер" : "Пользователь"}</span>
+                    <span className="text-[8px] font-black uppercase text-muted-foreground">Роль</span>
                   </div>
                 </div>
 
@@ -215,7 +215,7 @@ const Profile = () => {
                   onClick={() => setIsUploadOpen(true)}
                   className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-background font-black uppercase tracking-widest text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all mb-4"
                 >
-                  <Upload className="w-4 h-4 mr-2" /> Upload New Beat
+                  <Upload className="w-4 h-4 mr-2" /> Загрузить бит
                 </Button>
               </div>
             </Card>
@@ -225,14 +225,14 @@ const Profile = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Wallet className="w-5 h-5 text-primary" />
-                  <span className="font-black uppercase italic tracking-tight">Your Balance</span>
+                  <span className="font-black uppercase italic tracking-tight">Ваш баланс</span>
                 </div>
               </div>
               <div className="text-4xl font-black mb-6 italic text-primary">
-                ${user.balance ?? "0.00"}
+                {user.balance ?? "0.00"} ₽
               </div>
               <Button className="w-full h-10 rounded-none bg-background text-foreground border-2 border-primary font-black uppercase text-[10px] tracking-widest hover:bg-primary hover:text-white transition-all">
-                <Plus className="w-4 h-4 mr-1" /> Top Up Balance
+                <Plus className="w-4 h-4 mr-1" /> Пополнить баланс
               </Button>
             </Card>
           </div>
@@ -240,24 +240,24 @@ const Profile = () => {
           {/* Right Column: Content */}
           <div className="lg:col-span-2 space-y-8">
             <Card className="rounded-none border-4 border-foreground bg-card p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-full">
-              <h2 className="text-2xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-6">About Me</h2>
+              <h2 className="text-2xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-6">Обо мне</h2>
               <p className="text-sm font-bold text-muted-foreground leading-relaxed mb-8">
-                {user.about ?? "No bio yet."}
+                {user.about ?? "Описание пока не добавлено."}
               </p>
 
               <div className="space-y-6">
                 <h3 className="text-xl font-black uppercase italic tracking-tight flex items-center gap-2">
-                  My Tracks
+                  Мои треки
                 </h3>
 
                 {myBeats.length === 0 ? (
                   <div className="text-center py-12 border-2 border-dashed border-foreground/20">
-                    <p className="font-black uppercase italic text-muted-foreground tracking-widest text-sm">No tracks uploaded yet</p>
+                    <p className="font-black uppercase italic text-muted-foreground tracking-widest text-sm">Треков пока нет</p>
                     <Button
                       onClick={() => setIsUploadOpen(true)}
                       className="mt-4 rounded-none border-2 border-foreground font-black uppercase text-xs"
                     >
-                      Upload Your First Beat
+                      Загрузить первый бит
                     </Button>
                   </div>
                 ) : (
@@ -337,8 +337,8 @@ const Profile = () => {
                     <Upload className="w-6 h-6" />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-black uppercase italic tracking-tighter">Upload Beat</h2>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Share your sound with the world</p>
+                    <h2 className="text-3xl font-black uppercase italic tracking-tighter">Загрузка бита</h2>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Поделись своим звуком с миром</p>
                   </div>
                 </div>
                 <Button
@@ -361,7 +361,7 @@ const Profile = () => {
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-xs font-black uppercase tracking-widest">Beat Name</Label>
+                    <Label className="text-xs font-black uppercase tracking-widest">Название бита</Label>
                     <Input
                       required
                       placeholder="e.g. DARK NIGHT"
@@ -373,10 +373,10 @@ const Profile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-xs font-black uppercase tracking-widest">Genre</Label>
+                    <Label className="text-xs font-black uppercase tracking-widest">Жанр</Label>
                     <Select value={beatGenreId} onValueChange={setBeatGenreId}>
                       <SelectTrigger className="rounded-none border-2 border-foreground bg-elevate-1 font-bold uppercase">
-                        <SelectValue placeholder="Select Genre" />
+                        <SelectValue placeholder="Выберите жанр" />
                       </SelectTrigger>
                       <SelectContent className="rounded-none border-2 border-foreground">
                         {genres.map((genre) => (
@@ -401,7 +401,7 @@ const Profile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-xs font-black uppercase tracking-widest">Key</Label>
+                    <Label className="text-xs font-black uppercase tracking-widest">Тональность</Label>
                     <Input
                       placeholder="Am"
                       className="rounded-none border-2 border-foreground bg-elevate-1 font-bold"
@@ -411,7 +411,7 @@ const Profile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-xs font-black uppercase tracking-widest">Base Price ($)</Label>
+                    <Label className="text-xs font-black uppercase tracking-widest">Базовая цена (₽)</Label>
                     <Input
                       type="number"
                       placeholder="29.99"
@@ -424,9 +424,9 @@ const Profile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs font-black uppercase tracking-widest">Description</Label>
+                  <Label className="text-xs font-black uppercase tracking-widest">Описание</Label>
                   <Textarea
-                    placeholder="Tell us about the mood, energy, or inspiration..."
+                    placeholder="Расскажите про настроение, энергетику или вдохновение..."
                     className="rounded-none border-2 border-foreground bg-elevate-1 font-bold h-24"
                     data-testid="textarea-beat-description"
                     value={beatDescription}
@@ -435,7 +435,7 @@ const Profile = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs font-black uppercase tracking-widest">Upload File (.wav, .mp3)</Label>
+                  <Label className="text-xs font-black uppercase tracking-widest">Загрузить файл (.wav, .mp3)</Label>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -469,11 +469,11 @@ const Profile = () => {
                     <div className="text-center">
                       <p className="font-black uppercase italic text-sm">
                         {selectedFile
-                          ? `Selected file: ${selectedFile.name}`
-                          : "Drag & Drop or Click to Browse"}
+                          ? `Выбран файл: ${selectedFile.name}`
+                          : "Перетащите или нажмите для выбора"}
                       </p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">
-                        Maximum file size: 50MB
+                        Максимальный размер файла: 50МБ
                       </p>
                     </div>
                   </div>
@@ -490,14 +490,14 @@ const Profile = () => {
                     onClick={closeUpload}
                     className="flex-1 rounded-none h-14 border-2 border-foreground font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
                   >
-                    Cancel
+                    Отмена
                   </Button>
                   <Button
                     type="submit"
                     disabled={createBeatMutation.isPending}
                     className="flex-1 rounded-none h-14 bg-primary text-background border-2 border-foreground font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all disabled:opacity-60"
                   >
-                    {createBeatMutation.isPending ? "Publishing..." : "Publish Beat"}
+                    {createBeatMutation.isPending ? "Публикация..." : "Опубликовать"}
                   </Button>
                 </div>
               </form>
@@ -526,15 +526,15 @@ const Profile = () => {
               <div className="w-16 h-16 bg-destructive/10 border-2 border-destructive flex items-center justify-center mx-auto mb-6">
                 <Trash2 className="w-8 h-8 text-destructive" />
               </div>
-              <h2 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Warning</h2>
-              <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-8">Delete beat?</p>
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Внимание</h2>
+              <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-8">Удалить бит?</p>
               <div className="flex gap-4">
                 <Button
                   onClick={() => setDeleteTarget(null)}
                   variant="outline"
                   className="flex-1 rounded-none h-12 border-2 border-foreground font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
                 >
-                  No
+                  Нет
                 </Button>
                 <Button
                   onClick={() => {
@@ -543,7 +543,7 @@ const Profile = () => {
                   }}
                   className="flex-1 rounded-none h-12 bg-destructive text-destructive-foreground border-2 border-foreground font-black uppercase italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all hover:bg-destructive/90"
                 >
-                  Yes
+                  Да
                 </Button>
               </div>
             </motion.div>

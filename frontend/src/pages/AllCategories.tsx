@@ -30,14 +30,14 @@ export default function AllCategories() {
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <div>
-            <h1 className="text-5xl font-black uppercase italic tracking-tighter">All Genres</h1>
-            <p className="text-muted-foreground font-bold tracking-widest text-xs mt-1">BROWSE EVERY GENRE</p>
+            <h1 className="text-5xl font-black uppercase italic tracking-tighter">Все жанры</h1>
+            <p className="text-muted-foreground font-bold tracking-widest text-xs mt-1">ПРОСМОТР ВСЕХ ЖАНРОВ</p>
           </div>
         </div>
         <div className="w-72 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search genres..."
+            placeholder="Поиск жанров..."
             className="pl-10 rounded-none border-2 border-foreground"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -47,7 +47,7 @@ export default function AllCategories() {
 
       {filtered.length === 0 ? (
         <div className="text-center py-20 border-2 border-dashed border-foreground/20">
-          <p className="font-black uppercase italic text-muted-foreground tracking-widest">No genres found</p>
+          <p className="font-black uppercase italic text-muted-foreground tracking-widest">Жанры не найдены</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
