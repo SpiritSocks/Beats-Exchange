@@ -5,6 +5,10 @@ export function fetchLatestBeats(): Promise<Beat[]> {
   return apiFetch("/api/beats/latest");
 }
 
+export function fetchHotBeats(): Promise<Beat[]> {
+  return apiFetch("/api/beats/hot");
+}
+
 export function fetchMyBeats(): Promise<Beat[]> {
   return apiFetch("/api/beats");
 }
@@ -41,15 +45,23 @@ export function searchBeats(params: {
   genre_id?: number;
   bpm_min?: number;
   bpm_max?: number;
+  key?: string;
+  price_min?: number;
+  price_max?: number;
+  sort?: "newest" | "oldest";
   page?: number;
 }): Promise<PaginatedResponse<Beat>> {
-  const searchParams = new URLSearchParams();
-  if (params.q) searchParams.set("q", params.q);
-  if (params.genre_id) searchParams.set("genre_id", String(params.genre_id));
-  if (params.bpm_min) searchParams.set("bpm_min", String(params.bpm_min));
-  if (params.bpm_max) searchParams.set("bpm_max", String(params.bpm_max));
-  if (params.page) searchParams.set("page", String(params.page));
-  return apiFetch(`/api/beats/search?${searchParams.toString()}`);
+  const sp = new URLSearchParams();
+  if (params.q)         sp.set("q",         params.q);
+  if (params.genre_id)  sp.set("genre_id",  String(params.genre_id));
+  if (params.bpm_min)   sp.set("bpm_min",   String(params.bpm_min));
+  if (params.bpm_max)   sp.set("bpm_max",   String(params.bpm_max));
+  if (params.key)       sp.set("key",       params.key);
+  if (params.price_min) sp.set("price_min", String(params.price_min));
+  if (params.price_max) sp.set("price_max", String(params.price_max));
+  if (params.sort)      sp.set("sort",      params.sort);
+  if (params.page)      sp.set("page",      String(params.page));
+  return apiFetch(`/api/beats/search?${sp.toString()}`);
 }
 
 export function deleteBeat(id: number): Promise<{ message: string }> {

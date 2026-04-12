@@ -1,4 +1,4 @@
-import { Search, User, ShoppingCart } from "lucide-react";
+import { Search, User, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -73,6 +73,10 @@ export function Header() {
 
         <nav className="flex items-center gap-6">
           <ThemeToggle />
+          <Heart
+            onClick={() => navigate("/favorites")}
+            className="w-6 h-6 hover:text-primary hover:fill-primary transition-colors cursor-pointer"
+          />
           <div className="relative cursor-pointer" onClick={() => navigate("/cart")}>
             <ShoppingCart className="w-6 h-6 hover:text-primary transition-colors" />
             {items.length > 0 && (

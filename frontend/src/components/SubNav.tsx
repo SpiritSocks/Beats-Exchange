@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const tabs = [
   { label: "Биты", path: "/" },
-  { label: "Жанры", path: "/explore" },
+  { label: "Коллекции", path: "/explore" },
   { label: "Продюсеры", path: "/producers" },
 ];
 

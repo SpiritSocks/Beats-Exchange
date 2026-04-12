@@ -1,4 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 import type { Beat } from "@/api/types";
 
 export type LicenseCode = "base" | "premium" | "ultimate" | "exclusive";
@@ -35,15 +38,30 @@ function saveCart(items: CartItem[]) {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(loadCart);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   const addToCart = useCallback((beat: Beat, licenseCode: LicenseCode = "base") => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      toast({
+        title: "Требуется авторизация",
+        description: "Войдите в аккаунт, чтобы добавлять биты в корзину.",
+        action: (
+          <ToastAction altText="Войти" onClick={() => navigate("/auth")}>
+            Войти
+          </ToastAction>
+        ),
+      });
+      return;
+    }
     setItems((prev) => {
       if (prev.some((item) => item.beat.id === beat.id)) return prev;
       const next = [...prev, { beat, licenseCode }];
       saveCart(next);
       return next;
     });
-  }, []);
+  }, [toast, navigate]);
 
   const removeFromCart = useCallback((beatId: number) => {
     setItems((prev) => {

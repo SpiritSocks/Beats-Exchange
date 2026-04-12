@@ -11,6 +11,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import LicensePickerDialog from "@/components/LicensePickerDialog";
+import { pluralize } from "@/lib/pluralize";
 
 const GenreProfile = () => {
   const { id } = useParams();
@@ -62,7 +63,7 @@ const GenreProfile = () => {
                 {genre.name}
               </h1>
               <div className="flex items-center gap-4 text-primary font-black uppercase text-xs tracking-widest bg-background/80 backdrop-blur-sm p-1">
-                <span className="flex items-center gap-1"><Music className="w-3 h-3" /> {beats.length} битов</span>
+                <span className="flex items-center gap-1"><Music className="w-3 h-3" /> {beats.length} {pluralize(beats.length, "бит", "бита", "битов")}</span>
               </div>
             </div>
           </div>
@@ -73,7 +74,7 @@ const GenreProfile = () => {
         <div className="flex flex-col gap-12">
           <div className="flex items-center justify-between pb-6 border-b-2 border-foreground/10">
             <Badge className="rounded-none bg-primary text-background font-black uppercase text-[10px] h-10 px-6 flex items-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              {beats.length} результатов
+              {beats.length} {pluralize(beats.length, "результат", "результата", "результатов")}
             </Badge>
           </div>
 

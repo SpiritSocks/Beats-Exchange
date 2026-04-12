@@ -10,12 +10,15 @@ import { fetchProducer } from "@/api/producers";
 import type { Beat } from "@/api/types";
 import { usePlayer } from "@/context/PlayerContext";
 import { useCart } from "@/context/CartContext";
+import { useLikes } from "@/context/LikesContext";
 import LicensePickerDialog from "@/components/LicensePickerDialog";
+import { pluralize } from "@/lib/pluralize";
 
 const ProducerProfile = () => {
   const navigate = useNavigate();
   const { play, isPlaying, isActive } = usePlayer();
   const { addToCart, isInCart } = useCart();
+  const { isLiked, toggle: toggleLike } = useLikes();
   const { id } = useParams();
   const [pickerBeat, setPickerBeat] = useState<Beat | null>(null);
 
@@ -61,7 +64,11 @@ const ProducerProfile = () => {
                 {producer.name}
               </h1>
               <div className="flex items-center gap-4 text-background font-black uppercase text-xs tracking-widest">
-                <span>{beats.length} битов загружено</span>
+                <span>
+                  {beats.length % 10 === 1 && beats.length % 100 !== 11
+                    ? `Загружен ${beats.length} бит`
+                    : `Загружено ${beats.length} ${pluralize(beats.length, "бит", "бита", "битов")}`}
+                </span>
               </div>
             </div>
           </div>
@@ -124,7 +131,14 @@ const ProducerProfile = () => {
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="font-black text-lg">{getBasePrice(beat)}</span>
-                    <Button size="icon" variant="ghost" className="hover:text-primary"><Heart className="w-5 h-5" /></Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="hover:text-primary"
+                      onClick={(e) => { e.stopPropagation(); toggleLike(beat.id); }}
+                    >
+                      <Heart className={`w-5 h-5 transition-colors ${isLiked(beat.id) ? "fill-primary text-primary" : ""}`} />
+                    </Button>
                     <Button
                       size="sm"
                       className="rounded-none font-black uppercase text-[10px] border-2 border-foreground"

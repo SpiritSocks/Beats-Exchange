@@ -6,6 +6,7 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./components/theme-provider";
 import { PlayerProvider } from "./context/PlayerContext";
 import { CartProvider } from "./context/CartContext";
+import { LikesProvider } from "./context/LikesContext";
 import { PlayerBar } from "./components/PlayerBar";
 import { Header } from "./components/Header";
 import { SubNav } from "./components/SubNav";
@@ -21,6 +22,7 @@ import GenreProfile from "./pages/GenreProfile";
 import Settings from "./pages/Settings";
 import Search from "./pages/Search";
 import Cart from "./pages/Cart";
+import Favorites from "./pages/Favorites";
 
 function App() {
   return (
@@ -29,6 +31,7 @@ function App() {
         <TooltipProvider>
           <BrowserRouter>
             <CartProvider>
+            <LikesProvider>
             <PlayerProvider>
               <Toaster />
               <Header />
@@ -45,10 +48,12 @@ function App() {
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/favorites" element={<Favorites />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <PlayerBar />
             </PlayerProvider>
+            </LikesProvider>
             </CartProvider>
           </BrowserRouter>
         </TooltipProvider>

@@ -30,6 +30,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const MUSICAL_KEYS = [
+  "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+  "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm",
+];
+
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { me, type User } from "@/api/auth";
@@ -429,7 +434,7 @@ const Profile = () => {
                       <SelectTrigger className="rounded-none border-2 border-foreground bg-elevate-1 font-bold uppercase">
                         <SelectValue placeholder="Выберите жанр" />
                       </SelectTrigger>
-                      <SelectContent className="rounded-none border-2 border-foreground">
+                      <SelectContent className="rounded-none border-2 border-foreground max-h-52 overflow-y-auto" position="popper" sideOffset={4} avoidCollisions>
                         {genres.map((genre) => (
                           <SelectItem key={genre.id} value={String(genre.id)}>
                             {genre.name}
@@ -453,12 +458,17 @@ const Profile = () => {
 
                   <div className="space-y-2">
                     <Label className="text-xs font-black uppercase tracking-widest">Тональность</Label>
-                    <Input
-                      placeholder="Am"
-                      className="rounded-none border-2 border-foreground bg-elevate-1 font-bold"
-                      value={beatKey}
-                      onChange={(e) => setBeatKey(e.target.value)}
-                    />
+                    <Select value={beatKey || "__none__"} onValueChange={(v) => setBeatKey(v === "__none__" ? "" : v)}>
+                      <SelectTrigger className="rounded-none border-2 border-foreground bg-elevate-1 font-bold uppercase">
+                        <SelectValue placeholder="Не указана" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-none border-2 border-foreground max-h-52 overflow-y-auto" position="popper" sideOffset={4} avoidCollisions>
+                        <SelectItem value="__none__" className="font-bold">Не указана</SelectItem>
+                        {MUSICAL_KEYS.map((k) => (
+                          <SelectItem key={k} value={k} className="font-bold">{k}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   {/* Cover art — full width */}

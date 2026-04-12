@@ -15,6 +15,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { checkout } from "@/api/orders";
+import { pluralize } from "@/lib/pluralize";
 
 export default function Cart() {
   const { items, removeFromCart, updateLicense, clearCart, totalPrice } = useCart();
@@ -205,7 +206,7 @@ export default function Cart() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                    {items.length} {items.length === 1 ? "товар" : items.length < 5 ? "товара" : "товаров"}
+                    {items.length} {pluralize(items.length, "товар", "товара", "товаров")}
                   </p>
                   <p className="text-3xl font-black">{totalPrice.toFixed(2)} ₽</p>
                 </div>
