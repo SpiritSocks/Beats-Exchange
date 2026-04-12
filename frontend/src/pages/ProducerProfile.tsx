@@ -99,17 +99,23 @@ const ProducerProfile = () => {
                   whileHover={{ x: 10 }}
                   className="p-4 border-2 border-foreground bg-card flex items-center gap-4 group cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(255,51,102,1)] transition-all"
                 >
-                  <Button
-                    size="icon"
-                    className="w-12 h-12 bg-primary flex items-center justify-center shrink-0 border-2 border-foreground rounded-none"
-                    onClick={(e) => { e.stopPropagation(); play(beat); }}
-                  >
-                    {isActive(beat.id) && isPlaying ? (
-                      <Pause className="w-6 h-6 fill-background" />
-                    ) : (
-                      <Play className="w-6 h-6 fill-background" />
-                    )}
-                  </Button>
+                  {/* Cover + play button stacked */}
+                  <div className="relative w-14 h-14 shrink-0 border-2 border-foreground overflow-hidden">
+                    {beat.cover_url
+                      ? <img src={beat.cover_url} alt={beat.name} className="absolute inset-0 w-full h-full object-cover" />
+                      : <div className="absolute inset-0 bg-linear-to-br from-muted to-foreground/20" />
+                    }
+                    <button
+                      className="absolute inset-0 flex items-center justify-center bg-background/40 hover:bg-background/60 transition-colors"
+                      onClick={(e) => { e.stopPropagation(); play(beat); }}
+                    >
+                      {isActive(beat.id) && isPlaying ? (
+                        <Pause className="w-5 h-5 fill-foreground text-foreground drop-shadow" />
+                      ) : (
+                        <Play className="w-5 h-5 fill-foreground text-foreground drop-shadow" />
+                      )}
+                    </button>
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-black uppercase italic tracking-tight">{beat.name}</h3>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase">

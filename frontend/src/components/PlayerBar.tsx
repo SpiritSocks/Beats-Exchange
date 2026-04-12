@@ -36,7 +36,11 @@ export function PlayerBar() {
   return (
     <footer className="fixed bottom-0 left-0 right-0 h-24 border-t-4 border-primary bg-foreground text-background px-6 flex items-center gap-8 z-50">
       <div className="flex items-center gap-4 w-75">
-        <div className="w-16 h-16 bg-primary border-2 border-background shrink-0 overflow-hidden relative" />
+        <div className="w-16 h-16 bg-primary border-2 border-background shrink-0 overflow-hidden relative">
+          {activeBeat?.cover_url && (
+            <img src={activeBeat.cover_url} alt={activeBeat.name} className="w-full h-full object-cover" />
+          )}
+        </div>
         <div className="truncate">
           <h4 className="font-black text-sm uppercase tracking-tight truncate italic text-background">{activeBeat?.name ?? "—"}</h4>
           <Button

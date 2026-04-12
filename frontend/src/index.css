@@ -75,6 +75,26 @@
   --elevate-2: rgba(255, 51, 102, 0.15);
 }
 
+/*
+  Display font stack: Oxanium covers Latin glyphs (original font),
+  Oswald covers Cyrillic. Browser picks automatically via unicode-range.
+*/
+@font-face {
+  font-family: 'Display';
+  src: local('Oxanium');
+  font-weight: 200 800;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Display';
+  src: local('Oswald');
+  font-weight: 400 700;
+  unicode-range: U+0400-04FF, U+0500-052F, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -84,12 +104,23 @@
     font-family: 'Space Grotesk', sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Oxanium', cursive;
+    font-family: 'Display', 'Oxanium', 'Oswald', sans-serif;
   }
 }
 
 @layer utilities {
   .animate-spin-slow {
     animation: spin 8s linear infinite;
+  }
+}
+
+/*
+  Apply display font to all large headings.
+  tracking-tighter is used exclusively on display-size headings in this app.
+*/
+@layer components {
+  .tracking-tighter,
+  .tracking-tight {
+    font-family: 'Display', 'Oxanium', 'Oswald', sans-serif;
   }
 }

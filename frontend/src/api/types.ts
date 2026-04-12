@@ -43,6 +43,8 @@ export type Beat = {
   key: string | null;
   genre_id: number | null;
   user_id: number;
+  cover_url: string | null;
+  is_available: boolean;
   created_at: string;
   updated_at: string;
   genre: Genre | null;

@@ -57,6 +57,9 @@ const Home = () => {
                   >
                     <Card className="group relative rounded-none border-2 border-foreground bg-elevate-1 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_rgba(255,51,102,0.3)] transition-all cursor-pointer overflow-hidden">
                       <div className="aspect-square relative overflow-hidden bg-muted">
+                        {beat.cover_url && (
+                          <img src={beat.cover_url} alt={beat.name} className="absolute inset-0 w-full h-full object-cover" />
+                        )}
                         <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent z-10" />
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
                           <Button

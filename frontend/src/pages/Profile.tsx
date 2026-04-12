@@ -11,6 +11,7 @@ import {
   Play,
   Pause,
   Trash2,
+  ImagePlus,
 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -32,7 +33,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { me, type User } from "@/api/auth";
-import { fetchMyBeats, createBeat, uploadBeatAsset, deleteBeat } from "@/api/beats";
+import { fetchMyBeats, createBeat, uploadBeatAsset, uploadBeatCover, deleteBeat } from "@/api/beats";
 import { fetchGenres } from "@/api/genres";
 import type { Beat, Genre } from "@/api/types";
 import { usePlayer } from "@/context/PlayerContext";
@@ -42,7 +43,10 @@ const Profile = () => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedCover, setSelectedCover] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { play, isPlaying, isActive } = usePlayer();
@@ -52,9 +56,29 @@ const Profile = () => {
   const [beatGenreId, setBeatGenreId] = useState<string>("");
   const [beatBpm, setBeatBpm] = useState("");
   const [beatKey, setBeatKey] = useState("");
-  const [beatPrice, setBeatPrice] = useState("");
   const [beatDescription, setBeatDescription] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Prices per tier — premium/ultimate/exclusive auto-calc from base unless manually edited
+  const [priceBase, setPriceBase] = useState("");
+  const [pricePremium, setPricePremium] = useState("");
+  const [priceUltimate, setPriceUltimate] = useState("");
+  const [priceExclusive, setPriceExclusive] = useState("");
+  const [priceEdited, setPriceEdited] = useState({ premium: false, ultimate: false, exclusive: false });
+
+  const handleBasePriceChange = (val: string) => {
+    setPriceBase(val);
+    const base = parseFloat(val);
+    if (!isNaN(base) && base > 0) {
+      if (!priceEdited.premium)   setPricePremium((base * 2).toFixed(2));
+      if (!priceEdited.ultimate)  setPriceUltimate((base * 3).toFixed(2));
+      if (!priceEdited.exclusive) setPriceExclusive((base * 5).toFixed(2));
+    } else {
+      if (!priceEdited.premium)   setPricePremium("");
+      if (!priceEdited.ultimate)  setPriceUltimate("");
+      if (!priceEdited.exclusive) setPriceExclusive("");
+    }
+  };
 
   const token =
     typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
@@ -91,17 +115,21 @@ const Profile = () => {
 
   const createBeatMutation = useMutation({
     mutationFn: async () => {
-      const price = beatPrice ? parseFloat(beatPrice) : 0;
+      const base      = priceBase      ? parseFloat(priceBase)      : 0;
+      const premium   = pricePremium   ? parseFloat(pricePremium)   : base * 2;
+      const ultimate  = priceUltimate  ? parseFloat(priceUltimate)  : base * 3;
+      const exclusive = priceExclusive ? parseFloat(priceExclusive) : base * 5;
+
       const beat = await createBeat({
         name: beatName,
         description: beatDescription || undefined,
         bpm: beatBpm ? parseInt(beatBpm) : undefined,
         key: beatKey || undefined,
         genre_id: beatGenreId ? parseInt(beatGenreId) : undefined,
-        prices: { base: price, premium: price * 2, exclusive: price * 5 },
+        prices: { base, premium, ultimate, exclusive },
       });
 
-      // Upload file if selected
+      // Upload audio file if selected
       if (selectedFile && beat.id) {
         const ext = selectedFile.name.split(".").pop()?.toLowerCase();
         const fileType = ext === "wav" ? "wav" : "mp3";
@@ -110,6 +138,11 @@ const Profile = () => {
           type: fileType,
           file: selectedFile,
         });
+      }
+
+      // Upload cover if selected
+      if (selectedCover && beat.id) {
+        await uploadBeatCover(beat.id, selectedCover);
       }
 
       return beat;
@@ -138,16 +171,21 @@ const Profile = () => {
   const closeUpload = () => {
     setIsUploadOpen(false);
     setSelectedFile(null);
+    setSelectedCover(null);
+    setCoverPreview(null);
     setBeatName("");
     setBeatGenreId("");
     setBeatBpm("");
     setBeatKey("");
-    setBeatPrice("");
     setBeatDescription("");
+    setPriceBase("");
+    setPricePremium("");
+    setPriceUltimate("");
+    setPriceExclusive("");
+    setPriceEdited({ premium: false, ultimate: false, exclusive: false });
     setSubmitError(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (coverInputRef.current) coverInputRef.current.value = "";
   };
 
   const getBasePrice = (beat: Beat) => {
@@ -268,19 +306,32 @@ const Profile = () => {
                         whileHover={{ x: 10 }}
                         className="p-4 border-2 border-foreground bg-elevate-1 flex items-center gap-4 group cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
                       >
-                        <Button
-                          size="icon"
-                          className="w-10 h-10 bg-primary flex items-center justify-center shrink-0 border-2 border-foreground text-foreground rounded-none"
-                          onClick={(e) => { e.stopPropagation(); play(beat); }}
-                        >
-                          {isActive(beat.id) && isPlaying ? (
-                            <Pause className="w-5 h-5 fill-background" />
-                          ) : (
-                            <Play className="w-5 h-5 fill-background" />
-                          )}
-                        </Button>
+                        {/* Cover + play button stacked */}
+                        <div className="relative w-12 h-12 shrink-0 border-2 border-foreground overflow-hidden">
+                          {beat.cover_url
+                            ? <img src={beat.cover_url} alt={beat.name} className="absolute inset-0 w-full h-full object-cover" />
+                            : <div className="absolute inset-0 bg-linear-to-br from-muted to-foreground/20" />
+                          }
+                          <button
+                            className="absolute inset-0 flex items-center justify-center bg-background/40 hover:bg-background/60 transition-colors"
+                            onClick={(e) => { e.stopPropagation(); play(beat); }}
+                          >
+                            {isActive(beat.id) && isPlaying ? (
+                              <Pause className="w-4 h-4 fill-foreground text-foreground drop-shadow" />
+                            ) : (
+                              <Play className="w-4 h-4 fill-foreground text-foreground drop-shadow" />
+                            )}
+                          </button>
+                        </div>
                         <div className="flex-1">
-                          <h4 className="font-black uppercase italic tracking-tight text-sm">{beat.name}</h4>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-black uppercase italic tracking-tight text-sm">{beat.name}</h4>
+                            {beat.is_available === false && (
+                              <span className="text-[8px] font-black uppercase tracking-widest border border-primary text-primary px-1 py-0.5 shrink-0">
+                                Продан эксклюзивно
+                              </span>
+                            )}
+                          </div>
                           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
                             {beat.bpm ? `${beat.bpm} BPM` : ""} {beat.key ? `• ${beat.key}` : ""}
                           </p>
@@ -410,16 +461,135 @@ const Profile = () => {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-xs font-black uppercase tracking-widest">Базовая цена (₽)</Label>
-                    <Input
-                      type="number"
-                      placeholder="29.99"
-                      className="rounded-none border-2 border-foreground bg-elevate-1 font-bold"
-                      data-testid="input-beat-price"
-                      value={beatPrice}
-                      onChange={(e) => setBeatPrice(e.target.value)}
+                  {/* Cover art — full width */}
+                  <div className="space-y-2 md:col-span-2">
+                    <Label className="text-xs font-black uppercase tracking-widest">Обложка</Label>
+                    <input
+                      ref={coverInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setSelectedCover(file);
+                        setCoverPreview(URL.createObjectURL(file));
+                      }}
                     />
+                    <div
+                      className="border-2 border-dashed border-foreground/20 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group flex items-center gap-4 p-4"
+                      onClick={() => coverInputRef.current?.click()}
+                    >
+                      {coverPreview ? (
+                        <>
+                          <img
+                            src={coverPreview}
+                            alt="Обложка"
+                            className="w-20 h-20 object-cover border-2 border-foreground shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-black uppercase italic text-sm truncate">
+                              {selectedCover?.name}
+                            </p>
+                            <button
+                              type="button"
+                              className="text-[10px] font-bold text-primary uppercase tracking-widest mt-1 hover:underline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedCover(null);
+                                setCoverPreview(null);
+                                if (coverInputRef.current) coverInputRef.current.value = "";
+                              }}
+                            >
+                              Удалить
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-20 h-20 bg-elevate-1 border-2 border-foreground flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                            <ImagePlus className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                          </div>
+                          <div>
+                            <p className="font-black uppercase italic text-sm">
+                              Нажмите чтобы выбрать
+                            </p>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">
+                              JPG, PNG, WEBP · Рекомендуется 1:1
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Pricing — full width */}
+                  <div className="space-y-3 md:col-span-2">
+                    <Label className="text-xs font-black uppercase tracking-widest">Цены по тарифам (₽)</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {/* Base */}
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Basic</p>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="500"
+                          className="rounded-none border-2 border-foreground bg-elevate-1 font-bold"
+                          data-testid="input-beat-price"
+                          value={priceBase}
+                          onChange={(e) => handleBasePriceChange(e.target.value)}
+                        />
+                        <p className="text-[9px] text-muted-foreground font-bold">× 1</p>
+                      </div>
+                      {/* Premium */}
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Premium</p>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="авто"
+                          className={`rounded-none border-2 bg-elevate-1 font-bold ${priceEdited.premium ? "border-primary" : "border-foreground"}`}
+                          value={pricePremium}
+                          onChange={(e) => {
+                            setPricePremium(e.target.value);
+                            setPriceEdited((p) => ({ ...p, premium: true }));
+                          }}
+                        />
+                        <p className="text-[9px] text-muted-foreground font-bold">× 2 по умолчанию</p>
+                      </div>
+                      {/* Ultimate */}
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Ultimate</p>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="авто"
+                          className={`rounded-none border-2 bg-elevate-1 font-bold ${priceEdited.ultimate ? "border-primary" : "border-foreground"}`}
+                          value={priceUltimate}
+                          onChange={(e) => {
+                            setPriceUltimate(e.target.value);
+                            setPriceEdited((p) => ({ ...p, ultimate: true }));
+                          }}
+                        />
+                        <p className="text-[9px] text-muted-foreground font-bold">× 3 по умолчанию</p>
+                      </div>
+                      {/* Exclusive */}
+                      <div className="space-y-1">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Exclusive</p>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="авто"
+                          className={`rounded-none border-2 bg-elevate-1 font-bold ${priceEdited.exclusive ? "border-primary" : "border-foreground"}`}
+                          value={priceExclusive}
+                          onChange={(e) => {
+                            setPriceExclusive(e.target.value);
+                            setPriceEdited((p) => ({ ...p, exclusive: true }));
+                          }}
+                        />
+                        <p className="text-[9px] text-muted-foreground font-bold">× 5 по умолчанию</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

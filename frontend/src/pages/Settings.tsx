@@ -42,7 +42,7 @@ const Settings = () => {
   if (!token || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-        <p className="font-black uppercase tracking-widest text-xs">Loading settings...</p>
+        <p className="font-black uppercase tracking-widest text-xs">Загрузка настроек...</p>
       </div>
     );
   }
@@ -62,12 +62,12 @@ const Settings = () => {
               <ArrowLeft className="w-6 h-6" />
             </Button>
             <div>
-              <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Settings</h1>
-              <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-[0.2em] mt-1">Manage your identity and hub experience</p>
+              <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none">Настройки</h1>
+              <p className="text-muted-foreground font-bold text-[10px] uppercase tracking-[0.2em] mt-1">Управляй своим аккаунтом</p>
             </div>
           </div>
           <Button onClick={handleLogout} variant="outline" className="rounded-none border-2 border-destructive text-destructive font-black uppercase text-[10px] tracking-widest hover:bg-destructive hover:text-destructive-foreground transition-all">
-            <LogOut className="w-4 h-4 mr-2" /> Logout
+            <LogOut className="w-4 h-4 mr-2" /> Выйти
           </Button>
         </div>
       </div>
@@ -79,13 +79,13 @@ const Settings = () => {
             <div className="w-full md:w-48">
               <TabsList className="flex flex-col h-auto bg-transparent border-l-4 border-foreground/10 p-0 rounded-none items-start space-y-1">
                 <TabsTrigger value="general" className="w-full justify-start rounded-none border-none bg-transparent py-3 px-4 font-black uppercase text-[10px] tracking-widest data-[state=active]:border-l-4 data-[state=active]:border-primary data-[state=active]:bg-primary/10 transition-all">
-                  <User className="w-4 h-4 mr-2" /> General
+                  <User className="w-4 h-4 mr-2" /> Профиль
                 </TabsTrigger>
                 <TabsTrigger value="security" className="w-full justify-start rounded-none border-none bg-transparent py-3 px-4 font-black uppercase text-[10px] tracking-widest data-[state=active]:border-l-4 data-[state=active]:border-primary data-[state=active]:bg-primary/10 transition-all">
-                  <Lock className="w-4 h-4 mr-2" /> Security
+                  <Lock className="w-4 h-4 mr-2" /> Безопасность
                 </TabsTrigger>
                 <TabsTrigger value="notifications" className="w-full justify-start rounded-none border-none bg-transparent py-3 px-4 font-black uppercase text-[10px] tracking-widest data-[state=active]:border-l-4 data-[state=active]:border-primary data-[state=active]:bg-primary/10 transition-all">
-                  <Bell className="w-4 h-4 mr-2" /> Alerts
+                  <Bell className="w-4 h-4 mr-2" /> Уведомления
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -94,36 +94,36 @@ const Settings = () => {
             <div className="flex-1">
               <TabsContent value="general" className="m-0 space-y-6">
                 <Card className="rounded-none border-4 border-foreground p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                  <h2 className="text-2xl font-black uppercase italic mb-6 border-b-2 border-foreground/10 pb-2">Profile Information</h2>
+                  <h2 className="text-2xl font-black uppercase italic mb-6 border-b-2 border-foreground/10 pb-2">Информация профиля</h2>
                   <div className="grid gap-6">
                     <div className="flex items-center gap-6 mb-4">
                       <div className="w-20 h-20 bg-primary border-4 border-foreground flex items-center justify-center text-4xl font-black italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                         {user.name[0]}
                       </div>
-                      <Button variant="outline" className="rounded-none border-2 border-foreground font-black uppercase text-[10px]">Change Photo</Button>
+                      <Button variant="outline" className="rounded-none border-2 border-foreground font-black uppercase text-[10px]">Сменить фото</Button>
                     </div>
 
                     <div className="grid gap-2">
-                      <Label className="font-black uppercase text-[10px] tracking-widest">Username</Label>
+                      <Label className="font-black uppercase text-[10px] tracking-widest">Имя пользователя</Label>
                       <Input defaultValue={user.name} className="rounded-none border-2 border-foreground h-12 font-bold" />
                     </div>
 
                     <div className="grid gap-2">
-                      <Label className="font-black uppercase text-[10px] tracking-widest">Email Address</Label>
+                      <Label className="font-black uppercase text-[10px] tracking-widest">Электронная почта</Label>
                       <Input defaultValue={user.email} className="rounded-none border-2 border-foreground h-12 font-bold" />
                     </div>
 
                     <div className="grid gap-2">
-                      <Label className="font-black uppercase text-[10px] tracking-widest">Bio</Label>
+                      <Label className="font-black uppercase text-[10px] tracking-widest">О себе</Label>
                       <textarea
                         defaultValue={user.about ?? ""}
-                        placeholder="Tell us about yourself..."
+                        placeholder="Расскажите о себе..."
                         className="w-full h-32 rounded-none border-2 border-foreground bg-background p-4 font-bold text-sm outline-none focus:border-primary transition-all resize-none"
                       />
                     </div>
 
                     <Button className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-background font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
-                      <Save className="w-4 h-4 mr-2" /> Save Changes
+                      <Save className="w-4 h-4 mr-2" /> Сохранить
                     </Button>
                   </div>
                 </Card>
@@ -131,27 +131,27 @@ const Settings = () => {
 
               <TabsContent value="security" className="m-0 space-y-6">
                 <Card className="rounded-none border-4 border-foreground p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                  <h2 className="text-2xl font-black uppercase italic mb-6 border-b-2 border-foreground/10 pb-2">Password & Security</h2>
+                  <h2 className="text-2xl font-black uppercase italic mb-6 border-b-2 border-foreground/10 pb-2">Пароль и безопасность</h2>
                   <div className="grid gap-6">
                     <div className="grid gap-2">
-                      <Label className="font-black uppercase text-[10px] tracking-widest">Current Password</Label>
+                      <Label className="font-black uppercase text-[10px] tracking-widest">Текущий пароль</Label>
                       <Input type="password" placeholder="••••••••" className="rounded-none border-2 border-foreground h-12 font-bold" />
                     </div>
                     <div className="grid gap-2">
-                      <Label className="font-black uppercase text-[10px] tracking-widest">New Password</Label>
+                      <Label className="font-black uppercase text-[10px] tracking-widest">Новый пароль</Label>
                       <Input type="password" placeholder="••••••••" className="rounded-none border-2 border-foreground h-12 font-bold" />
                     </div>
 
                     <div className="pt-4 border-t-2 border-foreground/10 flex items-center justify-between">
                       <div>
-                        <p className="font-black uppercase text-[10px] tracking-widest mb-1">Two-Factor Authentication</p>
-                        <p className="text-[9px] font-bold text-muted-foreground uppercase">Add an extra layer of security to your account</p>
+                        <p className="font-black uppercase text-[10px] tracking-widest mb-1">Двухфакторная аутентификация</p>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase">Дополнительный уровень защиты аккаунта</p>
                       </div>
                       <Switch />
                     </div>
 
                     <Button className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-background font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all mt-4">
-                      Update Security
+                      Обновить
                     </Button>
                   </div>
                 </Card>
@@ -159,13 +159,13 @@ const Settings = () => {
 
               <TabsContent value="notifications" className="m-0 space-y-6">
                 <Card className="rounded-none border-4 border-foreground p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                  <h2 className="text-2xl font-black uppercase italic mb-6 border-b-2 border-foreground/10 pb-2">Notifications</h2>
+                  <h2 className="text-2xl font-black uppercase italic mb-6 border-b-2 border-foreground/10 pb-2">Уведомления</h2>
                   <div className="space-y-6">
                     {[
-                      { title: "Sales Alerts", desc: "Notify me when someone buys a beat" },
-                      { title: "New Messages", desc: "Notify me of direct messages from buyers" },
-                      { title: "Marketplace Trends", desc: "Weekly summary of what's hot" },
-                      { title: "Security Alerts", desc: "Critical account security notifications" }
+                      { title: "Продажи", desc: "Уведомлять при покупке бита" },
+                      { title: "Сообщения", desc: "Уведомлять о личных сообщениях от покупателей" },
+                      { title: "Тренды", desc: "Еженедельная сводка популярных битов" },
+                      { title: "Безопасность", desc: "Важные уведомления о безопасности аккаунта" }
                     ].map((item, i) => (
                       <div key={i} className="flex items-center justify-between">
                         <div>

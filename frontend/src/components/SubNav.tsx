@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const tabs = [
-  { label: "Tracks", path: "/" },
-  { label: "Collections", path: "/explore" },
-  { label: "Producers", path: "/producers" },
+  { label: "Биты", path: "/" },
+  { label: "Жанры", path: "/explore" },
+  { label: "Продюсеры", path: "/producers" },
 ];
 
 const VISIBLE_ROUTES = ["/", "/explore", "/producers", "/search"];

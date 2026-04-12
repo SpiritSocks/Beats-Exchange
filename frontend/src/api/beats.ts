@@ -19,7 +19,7 @@ export function createBeat(payload: {
   bpm?: number;
   key?: string;
   genre_id?: number;
-  prices?: { base?: number; premium?: number; exclusive?: number };
+  prices?: { base?: number; premium?: number; ultimate?: number; exclusive?: number };
 }): Promise<Beat> {
   return apiFetch("/api/beats", {
     method: "POST",
@@ -54,6 +54,27 @@ export function searchBeats(params: {
 
 export function deleteBeat(id: number): Promise<{ message: string }> {
   return apiFetch(`/api/beats/${id}`, { method: "DELETE" });
+}
+
+export function uploadBeatCover(beatId: number, file: File): Promise<{ cover_url: string }> {
+  const formData = new FormData();
+  formData.append("cover", file);
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+  return fetch(`${baseUrl}/api/beats/${beatId}/cover`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  }).then(async (res) => {
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    return res.json();
+  });
 }
 
 export function uploadBeatAsset(

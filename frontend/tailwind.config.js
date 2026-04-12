@@ -4,6 +4,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Space Grotesk", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Display", "Oxanium", "Oswald", "sans-serif"],
       },
     },
   },
