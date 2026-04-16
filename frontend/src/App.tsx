@@ -7,6 +7,7 @@ import { ThemeProvider } from "./components/theme-provider";
 import { PlayerProvider } from "./context/PlayerContext";
 import { CartProvider } from "./context/CartContext";
 import { LikesProvider } from "./context/LikesContext";
+import { FollowsProvider } from "./context/FollowsContext";
 import { PlayerBar } from "./components/PlayerBar";
 import { Header } from "./components/Header";
 import { SubNav } from "./components/SubNav";
@@ -32,6 +33,7 @@ function App() {
           <BrowserRouter>
             <CartProvider>
             <LikesProvider>
+            <FollowsProvider>
             <PlayerProvider>
               <Toaster />
               <Header />
@@ -53,6 +55,7 @@ function App() {
               </Routes>
               <PlayerBar />
             </PlayerProvider>
+            </FollowsProvider>
             </LikesProvider>
             </CartProvider>
           </BrowserRouter>

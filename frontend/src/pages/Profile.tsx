@@ -40,7 +40,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { me, type User } from "@/api/auth";
 import { fetchMyBeats, createBeat, uploadBeatAsset, uploadBeatCover, deleteBeat } from "@/api/beats";
 import { fetchGenres } from "@/api/genres";
-import type { Beat, Genre } from "@/api/types";
+import { fetchFollowedProducers } from "@/api/follows";
+import type { Beat, Genre, Producer } from "@/api/types";
 import { usePlayer } from "@/context/PlayerContext";
 
 
@@ -108,6 +109,12 @@ const Profile = () => {
   const { data: genres = [] } = useQuery<Genre[]>({
     queryKey: ["genres"],
     queryFn: fetchGenres,
+  });
+
+  const { data: followedProducers = [] } = useQuery<Producer[]>({
+    queryKey: ["followed-producers"],
+    queryFn: fetchFollowedProducers,
+    enabled: !!token,
   });
 
   const deleteBeatMutation = useMutation({
@@ -282,7 +289,7 @@ const Profile = () => {
 
           {/* Right Column: Content */}
           <div className="lg:col-span-2 space-y-8">
-            <Card className="rounded-none border-4 border-foreground bg-card p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-full">
+            <Card className="rounded-none border-4 border-foreground bg-card p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <h2 className="text-2xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-6">Обо мне</h2>
               <p className="text-sm font-bold text-muted-foreground leading-relaxed mb-8">
                 {user.about ?? "Описание пока не добавлено."}
@@ -364,6 +371,35 @@ const Profile = () => {
                   </div>
                 )}
               </div>
+            </Card>
+
+            {/* Subscriptions Card */}
+            <Card className="rounded-none border-4 border-foreground bg-card p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <h2 className="text-2xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-6">Мои подписки</h2>
+              {followedProducers.length === 0 ? (
+                <div className="text-center py-8 border-2 border-dashed border-foreground/20">
+                  <p className="font-black uppercase italic text-muted-foreground tracking-widest text-sm">Вы пока ни на кого не подписаны</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {followedProducers.map((producer) => (
+                    <motion.div
+                      key={producer.id}
+                      whileHover={{ y: -2 }}
+                      onClick={() => navigate(`/producers/${producer.id}`)}
+                      className="group border-2 border-foreground bg-card p-4 flex flex-col items-center gap-3 cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(255,51,102,1)] transition-all"
+                    >
+                      <div className="w-14 h-14 bg-primary border-2 border-foreground flex items-center justify-center text-2xl font-black italic text-background group-hover:scale-105 transition-transform">
+                        {producer.name[0]}
+                      </div>
+                      <div className="text-center">
+                        <p className="font-black uppercase italic tracking-tight text-xs truncate w-full">{producer.name}</p>
+                        <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest mt-0.5">Продюсер</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </Card>
           </div>
 

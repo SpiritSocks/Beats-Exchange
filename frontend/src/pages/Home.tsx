@@ -24,7 +24,7 @@ function BeatCard({ beat, onPick }: { beat: Beat; onPick: (b: Beat) => void }) {
   const price = base ? `${base.price} ₽` : "—";
 
   return (
-    <Card className="group relative rounded-none border-2 border-foreground bg-elevate-1 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_rgba(255,51,102,0.3)] transition-all cursor-pointer overflow-hidden w-44 shrink-0">
+    <Card className="group relative rounded-none border-2 border-foreground bg-elevate-1 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[8px_8px_0px_0px_rgba(255,51,102,1)] transition-all cursor-pointer overflow-hidden w-44 shrink-0">
       <div className="aspect-square relative overflow-hidden bg-muted">
         {beat.cover_url && (
           <img src={beat.cover_url} alt={beat.name} className="absolute inset-0 w-full h-full object-cover" />
@@ -89,10 +89,10 @@ function ScrollRow({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="relative group/row">
+    <div className="relative group/row px-12">
       <button
         onClick={() => scroll(-1)}
-        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-8 h-8 bg-background border-2 border-foreground flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity hover:bg-primary hover:text-background shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-background border-2 border-foreground flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity hover:bg-primary hover:text-background shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
       >
         <ChevronLeft className="w-4 h-4" />
       </button>
@@ -101,7 +101,7 @@ function ScrollRow({ children }: { children: React.ReactNode }) {
       </div>
       <button
         onClick={() => scroll(1)}
-        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-8 h-8 bg-background border-2 border-foreground flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity hover:bg-primary hover:text-background shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+        className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-background border-2 border-foreground flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-opacity hover:bg-primary hover:text-background shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
       >
         <ChevronRight className="w-4 h-4" />
       </button>

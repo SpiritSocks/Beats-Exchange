@@ -7,11 +7,15 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchGenres } from "@/api/genres";
 import type { Genre } from "@/api/types";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+
+const CHUNK = 12; // 4 rows × 3 cols
 
 export default function AllCategories() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [visibleCount, setVisibleCount] = useState(CHUNK);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const { data: genres = [] } = useQuery<Genre[]>({
     queryKey: ["genres"],
@@ -21,6 +25,30 @@ export default function AllCategories() {
   const filtered = search
     ? genres.filter((g) => g.name.toLowerCase().includes(search.toLowerCase()))
     : genres;
+
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+
+  // Reset visible count when search changes
+  useEffect(() => {
+    setVisibleCount(CHUNK);
+  }, [search]);
+
+  // Re-attach observer after every load so it fires again if sentinel is still visible
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((n) => n + CHUNK);
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [visibleCount]);
 
   return (
     <div className="min-h-screen bg-background text-foreground p-8 pb-32 overflow-y-auto font-sans">
@@ -51,12 +79,12 @@ export default function AllCategories() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filtered.map((genre, i) => (
+          {visible.map((genre, i) => (
             <motion.div
               key={genre.id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.03 }}
+              transition={{ delay: (i % CHUNK) * 0.03 }}
             >
               <Card
                 onClick={() => navigate(`/genre/${genre.id}`)}
@@ -71,6 +99,8 @@ export default function AllCategories() {
           ))}
         </div>
       )}
+
+      {hasMore && <div ref={sentinelRef} className="mt-8" />}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Play, Pause, Heart, Share2, ShoppingCart, Check } from "lucide-react";
+import { ArrowLeft, Play, Pause, Heart, Share2, ShoppingCart, Check, UserCheck, UserPlus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,9 @@ import type { Beat } from "@/api/types";
 import { usePlayer } from "@/context/PlayerContext";
 import { useCart } from "@/context/CartContext";
 import { useLikes } from "@/context/LikesContext";
+import { useFollows } from "@/context/FollowsContext";
+import { me } from "@/api/auth";
+import type { User } from "@/api/types";
 import LicensePickerDialog from "@/components/LicensePickerDialog";
 import { pluralize } from "@/lib/pluralize";
 
@@ -19,8 +22,17 @@ const ProducerProfile = () => {
   const { play, isPlaying, isActive } = usePlayer();
   const { addToCart, isInCart } = useCart();
   const { isLiked, toggle: toggleLike } = useLikes();
+  const { isFollowing, toggle: toggleFollow } = useFollows();
   const { id } = useParams();
   const [pickerBeat, setPickerBeat] = useState<Beat | null>(null);
+
+  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+
+  const { data: currentUser } = useQuery<User | null>({
+    queryKey: ["me", token],
+    queryFn: async () => { try { return await me(); } catch { return null; } },
+    enabled: !!token,
+  });
 
   const { data, isLoading } = useQuery({
     queryKey: ["producer", id],
@@ -30,6 +42,8 @@ const ProducerProfile = () => {
 
   const producer = data?.producer;
   const beats = data?.beats ?? [];
+  const followersCount: number = data?.followers_count ?? 0;
+  const isOwnProfile = !!currentUser && currentUser.id === producer?.id;
 
   const getBasePrice = (beat: Beat) => {
     const base = beat.licenses?.find((l) => l.code === "base");
@@ -69,6 +83,8 @@ const ProducerProfile = () => {
                     ? `Загружен ${beats.length} бит`
                     : `Загружено ${beats.length} ${pluralize(beats.length, "бит", "бита", "битов")}`}
                 </span>
+                <span>·</span>
+                <span>{pluralize(followersCount, "подписчик", "подписчика", "подписчиков")}: {followersCount}</span>
               </div>
             </div>
           </div>
@@ -85,7 +101,21 @@ const ProducerProfile = () => {
             </p>
             <div className="flex gap-4 mt-6">
               <Button size="icon" variant="outline" className="rounded-none border-2 border-foreground"><Share2 className="w-4 h-4" /></Button>
-              <Button className="flex-1 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black uppercase text-xs">Подписаться</Button>
+              {!isOwnProfile && (
+                <Button
+                  className={`flex-1 rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-black uppercase text-xs flex items-center gap-2 transition-all ${
+                    isFollowing(producer.id)
+                      ? "bg-card text-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive"
+                      : ""
+                  }`}
+                  onClick={() => toggleFollow(producer.id)}
+                >
+                  {isFollowing(producer.id)
+                    ? <><UserCheck className="w-4 h-4" /> Отписаться</>
+                    : <><UserPlus className="w-4 h-4" /> Подписаться</>
+                  }
+                </Button>
+              )}
             </div>
           </Card>
         </div>
