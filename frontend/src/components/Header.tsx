@@ -7,6 +7,7 @@ import { logout as apiLogout } from "@/api/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 const HIDDEN_ROUTES = ["/auth", "/profile", "/settings"];
 
@@ -16,10 +17,9 @@ export function Header() {
   const queryClient = useQueryClient();
 
   const { items } = useCart();
+  const { token, setToken } = useAuth();
+  const isLoggedIn = !!token;
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(
-    typeof window !== "undefined" && !!localStorage.getItem("authToken"),
-  );
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,9 +37,8 @@ export function Header() {
 
     try { await apiLogout(); } catch {}
 
-    localStorage.removeItem("authToken");
     queryClient.clear();
-    setIsLoggedIn(false);
+    setToken(null);
     navigate("/");
   };
 

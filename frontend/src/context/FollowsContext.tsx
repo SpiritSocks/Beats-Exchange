@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { fetchFollowedIds, toggleFollow } from "@/api/follows";
+import { useAuth } from "@/context/AuthContext";
 
 interface FollowsContextValue {
   followedIds: Set<number>;
@@ -23,7 +24,7 @@ export function FollowsProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const { token } = useAuth();
 
   const { data, isLoading } = useQuery({
     queryKey: ["follows"],

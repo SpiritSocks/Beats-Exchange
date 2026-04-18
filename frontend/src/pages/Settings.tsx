@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   User,
@@ -15,12 +15,15 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { me, logout as apiLogout, type User as UserType } from "@/api/auth";
+import { me, logout as apiLogout, updateProfile, type User as UserType } from "@/api/auth";
 
 const Settings = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("general");
+  const [name, setName] = useState("");
+  const [about, setAbout] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
 
@@ -31,6 +34,26 @@ const Settings = () => {
     },
     enabled: !!token,
   });
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setAbout(user.about ?? "");
+    }
+  }, [user]);
+
+  const handleSave = async () => {
+    setSaveStatus("saving");
+    try {
+      const updated = await updateProfile({ name, about: about || null });
+      queryClient.setQueryData(["me", token], updated);
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch {
+      setSaveStatus("error");
+      setTimeout(() => setSaveStatus("idle"), 3000);
+    }
+  };
 
   const handleLogout = async () => {
     try { await apiLogout(); } catch {}
@@ -105,25 +128,35 @@ const Settings = () => {
 
                     <div className="grid gap-2">
                       <Label className="font-black uppercase text-[10px] tracking-widest">Имя пользователя</Label>
-                      <Input defaultValue={user.name} className="rounded-none border-2 border-foreground h-12 font-bold" />
+                      <Input
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="rounded-none border-2 border-foreground h-12 font-bold"
+                      />
                     </div>
 
                     <div className="grid gap-2">
                       <Label className="font-black uppercase text-[10px] tracking-widest">Электронная почта</Label>
-                      <Input defaultValue={user.email} className="rounded-none border-2 border-foreground h-12 font-bold" />
+                      <Input value={user.email} readOnly className="rounded-none border-2 border-foreground h-12 font-bold opacity-60 cursor-not-allowed" />
                     </div>
 
                     <div className="grid gap-2">
                       <Label className="font-black uppercase text-[10px] tracking-widest">О себе</Label>
                       <textarea
-                        defaultValue={user.about ?? ""}
+                        value={about}
+                        onChange={(e) => setAbout(e.target.value)}
                         placeholder="Расскажите о себе..."
                         className="w-full h-32 rounded-none border-2 border-foreground bg-background p-4 font-bold text-sm outline-none focus:border-primary transition-all resize-none"
                       />
                     </div>
 
-                    <Button className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-background font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
-                      <Save className="w-4 h-4 mr-2" /> Сохранить
+                    <Button
+                      onClick={handleSave}
+                      disabled={saveStatus === "saving"}
+                      className="w-full h-12 rounded-none border-2 border-foreground bg-primary text-background font-black uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      {saveStatus === "saving" ? "Сохранение..." : saveStatus === "saved" ? "Сохранено!" : saveStatus === "error" ? "Ошибка!" : "Сохранить"}
                     </Button>
                   </div>
                 </Card>

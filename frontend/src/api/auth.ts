@@ -31,6 +31,13 @@ export function me() {
   return apiFetch("/api/me") as Promise<User>;
 }
 
+export function updateProfile(payload: { name?: string; about?: string | null }) {
+  return apiFetch("/api/me", {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  }) as Promise<User>;
+}
+
 export function logout() {
   return apiFetch("/api/logout", {
     method: "POST",

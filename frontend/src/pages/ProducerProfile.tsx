@@ -12,6 +12,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import { useCart } from "@/context/CartContext";
 import { useLikes } from "@/context/LikesContext";
 import { useFollows } from "@/context/FollowsContext";
+import { useAuth } from "@/context/AuthContext";
 import { me } from "@/api/auth";
 import type { User } from "@/api/types";
 import LicensePickerDialog from "@/components/LicensePickerDialog";
@@ -26,7 +27,7 @@ const ProducerProfile = () => {
   const { id } = useParams();
   const [pickerBeat, setPickerBeat] = useState<Beat | null>(null);
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const { token } = useAuth();
 
   const { data: currentUser } = useQuery<User | null>({
     queryKey: ["me", token],

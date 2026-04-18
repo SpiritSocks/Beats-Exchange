@@ -8,6 +8,7 @@ import { PlayerProvider } from "./context/PlayerContext";
 import { CartProvider } from "./context/CartContext";
 import { LikesProvider } from "./context/LikesContext";
 import { FollowsProvider } from "./context/FollowsContext";
+import { AuthProvider } from "./context/AuthContext";
 import { PlayerBar } from "./components/PlayerBar";
 import { Header } from "./components/Header";
 import { SubNav } from "./components/SubNav";
@@ -30,6 +31,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="beat-exchange-theme">
         <TooltipProvider>
+          <AuthProvider>
           <BrowserRouter>
             <CartProvider>
             <LikesProvider>
@@ -59,6 +61,7 @@ function App() {
             </LikesProvider>
             </CartProvider>
           </BrowserRouter>
+          </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

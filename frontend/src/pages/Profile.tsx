@@ -43,6 +43,7 @@ import { fetchGenres } from "@/api/genres";
 import { fetchFollowedProducers } from "@/api/follows";
 import type { Beat, Genre, Producer } from "@/api/types";
 import { usePlayer } from "@/context/PlayerContext";
+import { useAuth } from "@/context/AuthContext";
 
 
 const Profile = () => {
@@ -86,8 +87,7 @@ const Profile = () => {
     }
   };
 
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const { token } = useAuth();
 
   const { data: user, isLoading, isError } = useQuery<User | null>({
     queryKey: ["me", token],

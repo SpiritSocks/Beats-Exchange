@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-
+import { useAuth } from "@/context/AuthContext";
 import { register, login } from "@/api/auth";
 
 const Auth = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { setToken } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
 
   const [name, setName] = useState("");
@@ -31,7 +32,7 @@ const Auth = () => {
       if (isLogin) {
         const data = await login({ email, password });
         queryClient.clear();
-        localStorage.setItem("authToken", data.token);
+        setToken(data.token);
         navigate("/");
         return;
       }
@@ -44,7 +45,7 @@ const Auth = () => {
       });
 
       queryClient.clear();
-      localStorage.setItem("authToken", data.token);
+      setToken(data.token);
       navigate("/");
     } catch (err: any) {
       setError(err?.message ?? "Что-то пошло не так");

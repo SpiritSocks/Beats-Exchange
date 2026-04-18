@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { fetchLikedIds, toggleLike } from "@/api/likes";
+import { useAuth } from "@/context/AuthContext";
 
 interface LikesContextValue {
   likedIds: Set<number>;
@@ -23,7 +24,7 @@ export function LikesProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const { token } = useAuth();
 
   const { data, isLoading } = useQuery({
     queryKey: ["likes"],
