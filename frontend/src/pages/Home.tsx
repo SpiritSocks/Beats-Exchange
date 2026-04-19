@@ -208,8 +208,11 @@ const Home = () => {
                   onClick={() => navigate(`/producers/${producer.id}`)}
                   className="group border-2 border-foreground bg-card p-4 flex flex-col items-center gap-3 cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(255,51,102,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all"
                 >
-                  <div className="w-16 h-16 bg-primary border-2 border-foreground flex items-center justify-center text-3xl font-black italic text-background group-hover:scale-105 transition-transform">
-                    {producer.name[0]}
+                  <div className="w-16 h-16 bg-primary border-2 border-foreground flex items-center justify-center text-3xl font-black italic text-background group-hover:scale-105 transition-transform overflow-hidden">
+                    {producer.avatar
+                      ? <img src={producer.avatar} alt={producer.name} className="w-full h-full object-cover" />
+                      : producer.name[0].toUpperCase()
+                    }
                   </div>
                   <div className="text-center">
                     <p className="font-black uppercase italic tracking-tight text-sm truncate w-full">{producer.name}</p>

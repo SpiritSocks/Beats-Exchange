@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowLeft,
   User,
   Lock,
   Bell,
   Save,
-  LogOut
+  LogOut,
+  Camera,
+  Loader2,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { me, logout as apiLogout, updateProfile, type User as UserType } from "@/api/auth";
+import { me, logout as apiLogout, updateProfile, uploadAvatar, type User as UserType } from "@/api/auth";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -24,6 +26,9 @@ const Settings = () => {
   const [name, setName] = useState("");
   const [about, setAbout] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
 
@@ -39,8 +44,33 @@ const Settings = () => {
     if (user) {
       setName(user.name);
       setAbout(user.about ?? "");
+      setAvatarPreview(user.avatar ?? null);
     }
   }, [user]);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Local preview immediately
+    const objectUrl = URL.createObjectURL(file);
+    setAvatarPreview(objectUrl);
+
+    setAvatarUploading(true);
+    try {
+      const updated = await uploadAvatar(file);
+      queryClient.setQueryData(["me", token], updated);
+      // Replace object URL with server URL
+      setAvatarPreview(updated.avatar ?? objectUrl);
+    } catch {
+      // Revert preview on error
+      setAvatarPreview(user?.avatar ?? null);
+    } finally {
+      setAvatarUploading(false);
+      // Reset input so the same file can be re-selected
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  };
 
   const handleSave = async () => {
     setSaveStatus("saving");
@@ -120,10 +150,62 @@ const Settings = () => {
                   <h2 className="text-2xl font-black uppercase italic mb-6 border-b-2 border-foreground/10 pb-2">Информация профиля</h2>
                   <div className="grid gap-6">
                     <div className="flex items-center gap-6 mb-4">
-                      <div className="w-20 h-20 bg-primary border-4 border-foreground flex items-center justify-center text-4xl font-black italic shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        {user.name[0]}
+                      {/* Avatar */}
+                      <div className="relative group">
+                        <div className="w-20 h-20 border-4 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] overflow-hidden bg-primary flex items-center justify-center">
+                          {avatarPreview ? (
+                            <img
+                              src={avatarPreview}
+                              alt="Аватар"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-4xl font-black italic text-background">
+                              {user.name[0].toUpperCase()}
+                            </span>
+                          )}
+                        </div>
+                        {/* Overlay on hover */}
+                        <button
+                          type="button"
+                          onClick={() => avatarInputRef.current?.click()}
+                          disabled={avatarUploading}
+                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer disabled:cursor-not-allowed"
+                        >
+                          {avatarUploading
+                            ? <Loader2 className="w-6 h-6 text-white animate-spin" />
+                            : <Camera className="w-6 h-6 text-white" />
+                          }
+                        </button>
                       </div>
-                      <Button variant="outline" className="rounded-none border-2 border-foreground font-black uppercase text-[10px]">Сменить фото</Button>
+
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => avatarInputRef.current?.click()}
+                          disabled={avatarUploading}
+                          className="rounded-none border-2 border-foreground font-black uppercase text-[10px]"
+                        >
+                          {avatarUploading ? (
+                            <><Loader2 className="w-3 h-3 mr-2 animate-spin" />Загрузка...</>
+                          ) : (
+                            <><Camera className="w-3 h-3 mr-2" />Сменить фото</>
+                          )}
+                        </Button>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                          JPG, PNG, WEBP · макс. 5 МБ
+                        </p>
+                      </div>
+
+                      {/* Hidden file input */}
+                      <input
+                        ref={avatarInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        className="hidden"
+                        onChange={handleAvatarChange}
+                      />
                     </div>
 
                     <div className="grid gap-2">

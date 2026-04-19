@@ -240,8 +240,12 @@ const Profile = () => {
             <Card className="rounded-none border-4 border-foreground bg-card p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
               <div className="flex flex-col items-center text-center">
                 <div className="relative mb-6">
-                  <div className="w-32 h-32 bg-primary border-4 border-foreground flex items-center justify-center text-6xl font-black italic shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                    {user.name[0]}
+                  <div className="w-32 h-32 bg-primary border-4 border-foreground flex items-center justify-center text-6xl font-black italic shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-background">{user.name[0].toUpperCase()}</span>
+                    )}
                   </div>
                 </div>
 
@@ -373,36 +377,42 @@ const Profile = () => {
               </div>
             </Card>
 
-            {/* Subscriptions Card */}
-            <Card className="rounded-none border-4 border-foreground bg-card p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <h2 className="text-2xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-6">Мои подписки</h2>
-              {followedProducers.length === 0 ? (
-                <div className="text-center py-8 border-2 border-dashed border-foreground/20">
-                  <p className="font-black uppercase italic text-muted-foreground tracking-widest text-sm">Вы пока ни на кого не подписаны</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {followedProducers.map((producer) => (
-                    <motion.div
-                      key={producer.id}
-                      whileHover={{ y: -2 }}
-                      onClick={() => navigate(`/producers/${producer.id}`)}
-                      className="group border-2 border-foreground bg-card p-4 flex flex-col items-center gap-3 cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(255,51,102,1)] transition-all"
-                    >
-                      <div className="w-14 h-14 bg-primary border-2 border-foreground flex items-center justify-center text-2xl font-black italic text-background group-hover:scale-105 transition-transform">
-                        {producer.name[0]}
-                      </div>
-                      <div className="text-center">
-                        <p className="font-black uppercase italic tracking-tight text-xs truncate w-full">{producer.name}</p>
-                        <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest mt-0.5">Продюсер</p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </Card>
           </div>
 
+        </div>
+
+        {/* Subscriptions — full width */}
+        <div className="mt-8">
+          <Card className="rounded-none border-4 border-foreground bg-card p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <h2 className="text-2xl font-black uppercase italic tracking-tight border-b-4 border-primary pb-2 inline-block mb-6">Мои подписки</h2>
+            {followedProducers.length === 0 ? (
+              <div className="text-center py-8 border-2 border-dashed border-foreground/20">
+                <p className="font-black uppercase italic text-muted-foreground tracking-widest text-sm">Вы пока ни на кого не подписаны</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+                {followedProducers.map((producer) => (
+                  <motion.div
+                    key={producer.id}
+                    whileHover={{ y: -2 }}
+                    onClick={() => navigate(`/producers/${producer.id}`)}
+                    className="group border-2 border-foreground bg-card p-4 flex flex-col items-center gap-3 cursor-pointer shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(255,51,102,1)] transition-all"
+                  >
+                    <div className="w-14 h-14 bg-primary border-2 border-foreground flex items-center justify-center text-2xl font-black italic text-background group-hover:scale-105 transition-transform overflow-hidden">
+                      {producer.avatar
+                        ? <img src={producer.avatar} alt={producer.name} className="w-full h-full object-cover" />
+                        : producer.name[0].toUpperCase()
+                      }
+                    </div>
+                    <div className="text-center">
+                      <p className="font-black uppercase italic tracking-tight text-xs truncate w-full">{producer.name}</p>
+                      <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest mt-0.5">Продюсер</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </Card>
         </div>
       </main>
 

@@ -71,8 +71,11 @@ const ProducerProfile = () => {
             <ArrowLeft className="w-4 h-4 mr-2" /> К каталогу
           </Button>
           <div className="flex items-center gap-8">
-            <div className="w-32 h-32 bg-background border-4 border-foreground flex items-center justify-center text-6xl font-black italic shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              {producer.name[0]}
+            <div className="w-32 h-32 bg-background border-4 border-foreground flex items-center justify-center text-6xl font-black italic shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+              {producer.avatar
+                ? <img src={producer.avatar} alt={producer.name} className="w-full h-full object-cover" />
+                : <span>{producer.name[0].toUpperCase()}</span>
+              }
             </div>
             <div className="flex flex-col">
               <h1 className="text-6xl font-black uppercase italic tracking-tighter text-foreground bg-background px-4 inline-block shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] mb-2">

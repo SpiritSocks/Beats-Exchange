@@ -38,6 +38,30 @@ export function updateProfile(payload: { name?: string; about?: string | null })
   }) as Promise<User>;
 }
 
+export function uploadAvatar(file: File): Promise<User> {
+  const token = typeof window !== "undefined" ? localStorage.getItem("authToken") : null;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+  const formData = new FormData();
+  formData.append("avatar", file);
+
+  return fetch(`${baseUrl}/api/me/avatar`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  }).then(async (res) => {
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      throw new Error(body?.message || `API error: ${res.status}`);
+    }
+    return res.json();
+  });
+}
+
 export function logout() {
   return apiFetch("/api/logout", {
     method: "POST",

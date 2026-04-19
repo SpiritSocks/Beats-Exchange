@@ -84,8 +84,11 @@ export default function Producers() {
                   <div className="p-6 pt-10 flex-1">
                     <div className="flex items-center justify-center mb-6">
                       <div className="w-20 h-20 bg-primary border-4 border-primary flex items-center justify-center text-4xl font-black italic
-                      shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:bg-white group-hover:text-primary transition-colors">
-                        {producer.name[0]}
+                      shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:bg-white group-hover:text-primary transition-colors overflow-hidden">
+                        {producer.avatar
+                          ? <img src={producer.avatar} alt={producer.name} className="w-full h-full object-cover" />
+                          : producer.name[0].toUpperCase()
+                        }
                       </div>
                     </div>
                     <div className="text-center mb-6">
