@@ -94,13 +94,25 @@ export default function Cart() {
                         {si.license_code} — {si.price} ₽
                       </p>
                     </div>
-                    <button
-                      onClick={() => downloadLicense(si.license_download_url, `${si.beat_name}_${si.license_code}_license.pdf`)}
-                      className="shrink-0 flex items-center gap-1 border-2 border-foreground px-2 py-1 text-[10px] font-black uppercase hover:bg-foreground hover:text-background transition-colors cursor-pointer"
-                    >
-                      <Download className="w-3 h-3" />
-                      Лицензия
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => {
+                          const ext = si.license_code === "base" ? "mp3" : "zip";
+                          downloadLicense(si.beat_download_url, `${si.beat_name}_${si.license_code}.${ext}`);
+                        }}
+                        className="flex items-center gap-1 border-2 border-primary text-primary px-2 py-1 text-[10px] font-black uppercase hover:bg-primary hover:text-background transition-colors cursor-pointer"
+                      >
+                        <Download className="w-3 h-3" />
+                        Файлы
+                      </button>
+                      <button
+                        onClick={() => downloadLicense(si.license_download_url, `${si.beat_name}_${si.license_code}_license.pdf`)}
+                        className="flex items-center gap-1 border-2 border-foreground px-2 py-1 text-[10px] font-black uppercase hover:bg-foreground hover:text-background transition-colors cursor-pointer"
+                      >
+                        <Download className="w-3 h-3" />
+                        PDF
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

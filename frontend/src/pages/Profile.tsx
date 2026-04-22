@@ -505,16 +505,28 @@ const Profile = () => {
                         <p className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest">{p.order_number}</p>
                       </div>
 
-                      {/* Download */}
-                      {p.license_download_url && (
+                      {/* Downloads */}
+                      <div className="flex items-center gap-2 shrink-0">
                         <button
-                          onClick={() => downloadLicense(p.license_download_url!, `${p.beat_name}_${p.license_code}_license.pdf`)}
-                          className="shrink-0 flex items-center gap-1.5 border-2 border-foreground px-3 py-2 text-[10px] font-black uppercase hover:bg-foreground hover:text-background transition-colors cursor-pointer"
+                          onClick={() => {
+                            const ext = p.license_code === "base" ? "mp3" : "zip";
+                            downloadLicense(p.beat_download_url, `${p.beat_name}_${p.license_code}.${ext}`);
+                          }}
+                          className="flex items-center gap-1.5 border-2 border-primary text-primary px-3 py-2 text-[10px] font-black uppercase hover:bg-primary hover:text-background transition-colors cursor-pointer"
                         >
                           <Download className="w-3 h-3" />
-                          PDF
+                          Файлы
                         </button>
-                      )}
+                        {p.license_download_url && (
+                          <button
+                            onClick={() => downloadLicense(p.license_download_url!, `${p.beat_name}_${p.license_code}_license.pdf`)}
+                            className="flex items-center gap-1.5 border-2 border-foreground px-3 py-2 text-[10px] font-black uppercase hover:bg-foreground hover:text-background transition-colors cursor-pointer"
+                          >
+                            <Download className="w-3 h-3" />
+                            PDF
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))
                 )}

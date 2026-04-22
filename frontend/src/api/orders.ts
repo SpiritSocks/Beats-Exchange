@@ -12,6 +12,7 @@ export interface CheckoutResultItem {
   price: number;
   order_item_id: number;
   license_download_url: string;
+  beat_download_url: string;
 }
 
 export interface CheckoutResult {
@@ -30,6 +31,7 @@ export interface MyPurchase {
   price: number;
   purchased_at: string;
   license_download_url: string | null;
+  beat_download_url: string;
 }
 
 export function fetchMyOrders(): Promise<MyPurchase[]> {
