@@ -102,6 +102,22 @@ const TIERS: TierInfo[] = [
   },
 ];
 
+function getBeatFiles(beat: Beat) {
+  const allAssets = beat.licenses?.flatMap((l) => l.assets ?? []) ?? [];
+  return {
+    hasMp3: allAssets.some((a) => a.type === "mp3"),
+    hasWav: allAssets.some((a) => a.type === "wav"),
+    hasStems: allAssets.some((a) => a.type === "trackout_zip"),
+  };
+}
+
+function isTierAvailable(code: LicenseCode, files: ReturnType<typeof getBeatFiles>): boolean {
+  if (code === "base") return files.hasMp3;
+  if (code === "premium") return files.hasWav;
+  if (code === "ultimate" || code === "exclusive") return files.hasStems;
+  return false;
+}
+
 export default function LicensePickerDialog({
   beat,
   open,
@@ -112,16 +128,23 @@ export default function LicensePickerDialog({
 
   if (!beat) return null;
 
+  const beatFiles = getBeatFiles(beat);
+
+  const firstAvailable = TIERS.find((t) => isTierAvailable(t.code, beatFiles))?.code ?? "base";
+  const effectiveSelected = isTierAvailable(selected, beatFiles) ? selected : firstAvailable;
+
   const getPrice = (code: LicenseCode) => {
     const license = beat.licenses?.find((l) => l.code === code);
     return license ? `${license.price} ₽` : "—";
   };
 
   const handleConfirm = () => {
-    onSelect(beat, selected);
+    onSelect(beat, effectiveSelected);
     onOpenChange(false);
-    setSelected("base");
+    setSelected(firstAvailable);
   };
+
+  const noTiersAvailable = TIERS.every((t) => !isTierAvailable(t.code, beatFiles));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -137,17 +160,22 @@ export default function LicensePickerDialog({
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-0 p-4">
           {TIERS.map((tier) => {
-            const isSelected = selected === tier.code;
+            const available = isTierAvailable(tier.code, beatFiles);
+            const isSelected = effectiveSelected === tier.code && available;
             return (
               <button
                 key={tier.code}
                 type="button"
-                onClick={() => setSelected(tier.code)}
+                disabled={!available}
+                onClick={() => available && setSelected(tier.code)}
                 className={cn(
                   "relative text-left p-4 border-2 transition-all flex flex-col",
-                  isSelected
+                  !available && "opacity-40 cursor-not-allowed",
+                  available && isSelected
                     ? "border-primary bg-primary/5 shadow-[4px_4px_0px_0px_rgba(255,51,102,1)] -translate-x-0.5 -translate-y-0.5"
-                    : "border-foreground/20 hover:border-foreground/40"
+                    : available
+                    ? "border-foreground/20 hover:border-foreground/40"
+                    : "border-foreground/10"
                 )}
               >
                 {tier.popular && (
@@ -223,11 +251,19 @@ export default function LicensePickerDialog({
                   </p>
                 </div>
 
-                {tier.code === "exclusive" && (
+                {tier.code === "exclusive" && available && (
                   <div className="mt-3 pt-2 border-t border-foreground/10">
                     <p className="text-[10px] font-bold text-primary italic flex items-center gap-1">
                       <Crown className="w-3 h-3" />
                       Фиксированная цена продюсера
+                    </p>
+                  </div>
+                )}
+
+                {!available && (
+                  <div className="mt-auto pt-2">
+                    <p className="text-[9px] font-black uppercase text-muted-foreground/60">
+                      Файлы не загружены
                     </p>
                   </div>
                 )}
@@ -237,16 +273,23 @@ export default function LicensePickerDialog({
         </div>
 
         <div className="p-4 pt-0 flex items-center justify-between">
-          <p className="text-sm font-bold">
-            Выбрано:{" "}
-            <span className="font-black uppercase text-primary">
-              {TIERS.find((t) => t.code === selected)?.name}
-            </span>{" "}
-            — <span className="font-black">{getPrice(selected)}</span>
-          </p>
+          {noTiersAvailable ? (
+            <p className="text-xs font-bold uppercase text-muted-foreground">
+              Продюсер не загрузил файлы
+            </p>
+          ) : (
+            <p className="text-sm font-bold">
+              Выбрано:{" "}
+              <span className="font-black uppercase text-primary">
+                {TIERS.find((t) => t.code === effectiveSelected)?.name}
+              </span>{" "}
+              — <span className="font-black">{getPrice(effectiveSelected)}</span>
+            </p>
+          )}
           <Button
             onClick={handleConfirm}
-            className="rounded-none border-2 border-foreground font-black uppercase text-xs h-10 px-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+            disabled={noTiersAvailable}
+            className="rounded-none border-2 border-foreground font-black uppercase text-xs h-10 px-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all disabled:opacity-40"
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
             В корзину

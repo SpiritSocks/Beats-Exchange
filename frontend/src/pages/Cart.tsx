@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, ShoppingCart, Play, Pause, CheckCircle2, AlertCircle } from "lucide-react";
+import { Trash2, ShoppingCart, Play, Pause, CheckCircle2, AlertCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -14,7 +14,7 @@ import { useCart, type LicenseCode } from "@/context/CartContext";
 import { usePlayer } from "@/context/PlayerContext";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { checkout } from "@/api/orders";
+import { checkout, downloadLicense, type CheckoutResultItem } from "@/api/orders";
 import { pluralize } from "@/lib/pluralize";
 
 export default function Cart() {
@@ -22,13 +22,15 @@ export default function Cart() {
   const { play, isPlaying, isActive } = usePlayer();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [successItems, setSuccessItems] = useState<{ beat_name: string; license_code: string }[]>([]);
+  const [successItems, setSuccessItems] = useState<CheckoutResultItem[]>([]);
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
 
   const checkoutMutation = useMutation({
     mutationFn: () =>
       checkout(items.map((i) => ({ beat_id: i.beat.id, license_code: i.licenseCode }))),
     onSuccess: (data) => {
       setSuccessItems(data.items);
+      setOrderNumber(data.order_number);
       clearCart();
       // Refresh beats lists so exclusive-sold beats disappear
       queryClient.invalidateQueries({ queryKey: ["beats"] });
@@ -70,22 +72,41 @@ export default function Cart() {
             >
               <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-primary" />
               <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-2">Покупка оформлена!</h3>
+              {orderNumber && (
+                <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest mb-1">
+                  Заказ {orderNumber}
+                </p>
+              )}
               <p className="text-xs font-bold uppercase text-muted-foreground tracking-widest mb-6">
-                Спасибо за покупку
+                Скачайте лицензии ниже
               </p>
-              <div className="inline-block text-left border-2 border-foreground p-4 mb-6 space-y-1">
+              <div className="inline-block text-left border-2 border-foreground p-4 mb-6 space-y-3 min-w-64">
                 {successItems.map((si, idx) => (
-                  <p key={idx} className="text-sm font-bold uppercase">
-                    {si.beat_name}
-                    {si.license_code === "exclusive" && (
-                      <span className="ml-2 text-primary text-[10px] font-black border border-primary px-1 py-0.5">ЭКСКЛЮЗИВ</span>
-                    )}
-                  </p>
+                  <div key={idx} className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-black uppercase">
+                        {si.beat_name}
+                        {si.license_code === "exclusive" && (
+                          <span className="ml-2 text-primary text-[10px] font-black border border-primary px-1 py-0.5">ЭКСКЛЮЗИВ</span>
+                        )}
+                      </p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                        {si.license_code} — {si.price} ₽
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => downloadLicense(si.license_download_url, `${si.beat_name}_${si.license_code}_license.pdf`)}
+                      className="shrink-0 flex items-center gap-1 border-2 border-foreground px-2 py-1 text-[10px] font-black uppercase hover:bg-foreground hover:text-background transition-colors cursor-pointer"
+                    >
+                      <Download className="w-3 h-3" />
+                      Лицензия
+                    </button>
+                  </div>
                 ))}
               </div>
               <br />
               <Button
-                onClick={() => { setSuccessItems([]); navigate("/"); }}
+                onClick={() => { setSuccessItems([]); setOrderNumber(null); navigate("/"); }}
                 className="rounded-none border-2 border-foreground font-black uppercase text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
               >
                 На главную
@@ -157,7 +178,18 @@ export default function Cart() {
                       <SelectContent className="rounded-none border-2 border-foreground">
                         {(["base", "premium", "ultimate", "exclusive"] as const).map((code) => {
                           const license = item.beat.licenses?.find((l) => l.code === code);
-                          return license ? (
+                          if (!license) return null;
+                          const allAssets = item.beat.licenses?.flatMap((l) => l.assets ?? []) ?? [];
+                          const fileMap = {
+                            hasMp3: allAssets.some((a) => a.type === "mp3"),
+                            hasWav: allAssets.some((a) => a.type === "wav"),
+                            hasStems: allAssets.some((a) => a.type === "trackout_zip"),
+                          };
+                          const available =
+                            code === "base" ? fileMap.hasMp3 :
+                            code === "premium" ? fileMap.hasWav :
+                            fileMap.hasStems;
+                          return available ? (
                             <SelectItem
                               key={code}
                               value={code}

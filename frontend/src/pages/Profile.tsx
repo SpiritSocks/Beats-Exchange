@@ -12,6 +12,8 @@ import {
   Pause,
   Trash2,
   ImagePlus,
+  Download,
+  ShoppingBag,
 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -39,6 +41,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { me, type User } from "@/api/auth";
 import { fetchMyBeats, createBeat, uploadBeatAsset, uploadBeatCover, deleteBeat } from "@/api/beats";
+import { fetchMyOrders, downloadLicense, type MyPurchase } from "@/api/orders";
 import { fetchGenres } from "@/api/genres";
 import { fetchFollowedProducers } from "@/api/follows";
 import type { Beat, Genre, Producer } from "@/api/types";
@@ -48,10 +51,15 @@ import { useAuth } from "@/context/AuthContext";
 
 const Profile = () => {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isPurchasesOpen, setIsPurchasesOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const mp3InputRef = useRef<HTMLInputElement | null>(null);
+  const wavInputRef = useRef<HTMLInputElement | null>(null);
+  const stemsInputRef = useRef<HTMLInputElement | null>(null);
   const coverInputRef = useRef<HTMLInputElement | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedMp3, setSelectedMp3] = useState<File | null>(null);
+  const [selectedWav, setSelectedWav] = useState<File | null>(null);
+  const [selectedStems, setSelectedStems] = useState<File | null>(null);
   const [selectedCover, setSelectedCover] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -117,6 +125,12 @@ const Profile = () => {
     enabled: !!token,
   });
 
+  const { data: myPurchases = [] } = useQuery<MyPurchase[]>({
+    queryKey: ["my-orders"],
+    queryFn: fetchMyOrders,
+    enabled: !!token,
+  });
+
   const deleteBeatMutation = useMutation({
     mutationFn: (beatId: number) => deleteBeat(beatId),
     onSuccess: () => {
@@ -141,15 +155,15 @@ const Profile = () => {
         prices: { base, premium, ultimate, exclusive },
       });
 
-      // Upload audio file if selected
-      if (selectedFile && beat.id) {
-        const ext = selectedFile.name.split(".").pop()?.toLowerCase();
-        const fileType = ext === "wav" ? "wav" : "mp3";
-        await uploadBeatAsset(beat.id, {
-          license_code: "base",
-          type: fileType,
-          file: selectedFile,
-        });
+      if (selectedMp3 && beat.id) {
+        await uploadBeatAsset(beat.id, { license_code: "base", type: "mp3", file: selectedMp3 });
+      }
+      if (selectedWav && beat.id) {
+        await uploadBeatAsset(beat.id, { license_code: "premium", type: "wav", file: selectedWav });
+      }
+      if (selectedStems && beat.id) {
+        await uploadBeatAsset(beat.id, { license_code: "ultimate", type: "trackout_zip", file: selectedStems });
+        await uploadBeatAsset(beat.id, { license_code: "exclusive", type: "trackout_zip", file: selectedStems });
       }
 
       // Upload cover if selected
@@ -182,7 +196,9 @@ const Profile = () => {
 
   const closeUpload = () => {
     setIsUploadOpen(false);
-    setSelectedFile(null);
+    setSelectedMp3(null);
+    setSelectedWav(null);
+    setSelectedStems(null);
     setSelectedCover(null);
     setCoverPreview(null);
     setBeatName("");
@@ -196,7 +212,9 @@ const Profile = () => {
     setPriceExclusive("");
     setPriceEdited({ premium: false, ultimate: false, exclusive: false });
     setSubmitError(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (mp3InputRef.current) mp3InputRef.current.value = "";
+    if (wavInputRef.current) wavInputRef.current.value = "";
+    if (stemsInputRef.current) stemsInputRef.current.value = "";
     if (coverInputRef.current) coverInputRef.current.value = "";
   };
 
@@ -289,6 +307,17 @@ const Profile = () => {
                 <Plus className="w-4 h-4 mr-1" /> Пополнить баланс
               </Button>
             </Card>
+
+            <Button
+              onClick={() => setIsPurchasesOpen(true)}
+              variant="outline"
+              className="w-full h-12 rounded-none border-2 border-foreground font-black uppercase text-xs tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+            >
+              <ShoppingBag className="w-4 h-4 mr-2" /> Мои покупки
+              {myPurchases.length > 0 && (
+                <span className="ml-2 bg-primary text-background text-[9px] font-black px-1.5 py-0.5">{myPurchases.length}</span>
+              )}
+            </Button>
           </div>
 
           {/* Right Column: Content */}
@@ -415,6 +444,85 @@ const Profile = () => {
           </Card>
         </div>
       </main>
+
+      {/* Purchases Modal */}
+      <AnimatePresence>
+        {isPurchasesOpen && (
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-background/80 backdrop-blur-md"
+              onClick={() => setIsPurchasesOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-xl bg-background border-4 border-foreground shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] overflow-hidden"
+            >
+              {/* Modal header */}
+              <div className="flex items-center justify-between p-6 border-b-2 border-foreground">
+                <div className="flex items-center gap-3">
+                  <ShoppingBag className="w-5 h-5" />
+                  <h2 className="text-xl font-black uppercase italic tracking-tighter">Мои покупки</h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsPurchasesOpen(false)}
+                  className="rounded-none border-2 border-foreground hover:bg-primary transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+
+              {/* Modal body */}
+              <div className="overflow-y-auto max-h-[60vh] p-6 space-y-3">
+                {myPurchases.length === 0 ? (
+                  <div className="text-center py-12 border-2 border-dashed border-foreground/20">
+                    <ShoppingBag className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
+                    <p className="font-black uppercase italic text-muted-foreground tracking-widest text-sm">Покупок пока нет</p>
+                  </div>
+                ) : (
+                  myPurchases.map((p, idx) => (
+                    <div key={idx} className="flex items-center gap-4 p-4 border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      {/* Cover */}
+                      <div className="w-12 h-12 shrink-0 border-2 border-foreground overflow-hidden bg-muted">
+                        {p.beat_cover
+                          ? <img src={p.beat_cover} alt={p.beat_name} className="w-full h-full object-cover" />
+                          : <div className="w-full h-full bg-linear-to-br from-muted to-foreground/20" />
+                        }
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-black uppercase italic tracking-tight text-sm truncate">{p.beat_name}</p>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+                          {p.license_code} &nbsp;•&nbsp; {p.price} ₽ &nbsp;•&nbsp; {p.purchased_at}
+                        </p>
+                        <p className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest">{p.order_number}</p>
+                      </div>
+
+                      {/* Download */}
+                      {p.license_download_url && (
+                        <button
+                          onClick={() => downloadLicense(p.license_download_url!, `${p.beat_name}_${p.license_code}_license.pdf`)}
+                          className="shrink-0 flex items-center gap-1.5 border-2 border-foreground px-3 py-2 text-[10px] font-black uppercase hover:bg-foreground hover:text-background transition-colors cursor-pointer"
+                        >
+                          <Download className="w-3 h-3" />
+                          PDF
+                        </button>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Upload Modal */}
       <AnimatePresence>
@@ -660,48 +768,143 @@ const Profile = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-xs font-black uppercase tracking-widest">Загрузить файл (.wav, .mp3)</Label>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".wav,.mp3"
-                    className="hidden"
-                    data-testid="input-beat-file"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      setSelectedFile(file ?? null);
-                    }}
-                  />
+                {/* Hidden file inputs */}
+                <input ref={mp3InputRef} type="file" accept=".mp3" className="hidden" onChange={(e) => setSelectedMp3(e.target.files?.[0] ?? null)} />
+                <input ref={wavInputRef} type="file" accept=".wav" className="hidden" onChange={(e) => setSelectedWav(e.target.files?.[0] ?? null)} />
+                <input ref={stemsInputRef} type="file" accept=".zip" className="hidden" onChange={(e) => setSelectedStems(e.target.files?.[0] ?? null)} />
+
+                <div className="space-y-3">
+                  <Label className="text-xs font-black uppercase tracking-widest">Файлы</Label>
+
+                  {/* MP3 */}
                   <div
-                    className="border-4 border-dashed border-foreground/20 p-8 flex flex-col items-center justify-center gap-4 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group"
-                    onClick={() => fileInputRef.current?.click()}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const file = e.dataTransfer.files?.[0];
-                      if (file) {
-                        setSelectedFile(file);
-                      }
-                    }}
+                    className="flex items-center gap-3 border-2 border-foreground/30 hover:border-primary/60 hover:bg-primary/5 transition-all p-3 cursor-pointer group"
+                    onClick={() => mp3InputRef.current?.click()}
                   >
-                    <div className="w-16 h-16 bg-elevate-1 border-2 border-foreground flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Music className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <div className="w-8 h-8 bg-elevate-1 border-2 border-foreground flex items-center justify-center shrink-0">
+                      <Music className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
-                    <div className="text-center">
-                      <p className="font-black uppercase italic text-sm">
-                        {selectedFile
-                          ? `Выбран файл: ${selectedFile.name}`
-                          : "Перетащите или нажмите для выбора"}
-                      </p>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">
-                        Максимальный размер файла: 50МБ
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-widest">MP3 <span className="text-primary">·</span> Тегированный</p>
+                      <p className="text-[10px] text-muted-foreground font-bold truncate mt-0.5">
+                        {selectedMp3 ? selectedMp3.name : "Нажмите для выбора · .mp3"}
                       </p>
                     </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {selectedMp3 ? (
+                        <span className="text-[8px] font-black uppercase text-primary border border-primary px-1.5 py-0.5">Загружен</span>
+                      ) : (
+                        <span className="text-[8px] font-black uppercase text-muted-foreground border border-foreground/20 px-1.5 py-0.5">Basic</span>
+                      )}
+                      {selectedMp3 && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedMp3(null);
+                            setSelectedWav(null);
+                            setSelectedStems(null);
+                            if (mp3InputRef.current) mp3InputRef.current.value = "";
+                            if (wavInputRef.current) wavInputRef.current.value = "";
+                            if (stemsInputRef.current) stemsInputRef.current.value = "";
+                          }}
+                        >
+                          <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* WAV */}
+                  <div
+                    className={`flex items-center gap-3 border-2 p-3 transition-all ${selectedMp3 ? "border-foreground/30 hover:border-primary/60 hover:bg-primary/5 cursor-pointer group" : "border-foreground/10 opacity-40 cursor-not-allowed"}`}
+                    onClick={() => selectedMp3 && wavInputRef.current?.click()}
+                  >
+                    <div className="w-8 h-8 bg-elevate-1 border-2 border-foreground flex items-center justify-center shrink-0">
+                      <Music className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-widest">WAV <span className="text-primary">·</span> High Quality</p>
+                      <p className="text-[10px] text-muted-foreground font-bold truncate mt-0.5">
+                        {selectedWav ? selectedWav.name : selectedMp3 ? "Нажмите для выбора · .wav" : "Требуется MP3"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {selectedWav ? (
+                        <span className="text-[8px] font-black uppercase text-primary border border-primary px-1.5 py-0.5">Загружен</span>
+                      ) : (
+                        <span className="text-[8px] font-black uppercase text-muted-foreground border border-foreground/20 px-1.5 py-0.5">Premium</span>
+                      )}
+                      {selectedWav && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedWav(null);
+                            setSelectedStems(null);
+                            if (wavInputRef.current) wavInputRef.current.value = "";
+                            if (stemsInputRef.current) stemsInputRef.current.value = "";
+                          }}
+                        >
+                          <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Stems / ZIP */}
+                  <div
+                    className={`flex items-center gap-3 border-2 p-3 transition-all ${selectedWav ? "border-foreground/30 hover:border-primary/60 hover:bg-primary/5 cursor-pointer group" : "border-foreground/10 opacity-40 cursor-not-allowed"}`}
+                    onClick={() => selectedWav && stemsInputRef.current?.click()}
+                  >
+                    <div className="w-8 h-8 bg-elevate-1 border-2 border-foreground flex items-center justify-center shrink-0">
+                      <Music className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-widest">Стемы <span className="text-primary">·</span> ZIP архив</p>
+                      <p className="text-[10px] text-muted-foreground font-bold truncate mt-0.5">
+                        {selectedStems ? selectedStems.name : selectedWav ? "Нажмите для выбора · .zip" : "Требуется WAV"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {selectedStems ? (
+                        <span className="text-[8px] font-black uppercase text-primary border border-primary px-1.5 py-0.5">Загружен</span>
+                      ) : (
+                        <span className="text-[8px] font-black uppercase text-muted-foreground border border-foreground/20 px-1.5 py-0.5">Ultimate</span>
+                      )}
+                      {selectedStems && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedStems(null);
+                            if (stemsInputRef.current) stemsInputRef.current.value = "";
+                          }}
+                        >
+                          <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Tier availability preview */}
+                  <div className="grid grid-cols-4 gap-2 pt-1">
+                    {[
+                      { name: "Basic",     unlocked: !!selectedMp3,   need: "MP3" },
+                      { name: "Premium",   unlocked: !!selectedWav,   need: "WAV" },
+                      { name: "Ultimate",  unlocked: !!selectedStems, need: "Стемы" },
+                      { name: "Exclusive", unlocked: !!selectedStems, need: "Стемы" },
+                    ].map((t) => (
+                      <div
+                        key={t.name}
+                        className={`border-2 p-2 text-center transition-all ${t.unlocked ? "border-primary bg-primary/5" : "border-foreground/10 opacity-40"}`}
+                      >
+                        <p className="text-[9px] font-black uppercase tracking-widest">{t.name}</p>
+                        <p className="text-[8px] font-bold text-muted-foreground mt-0.5">
+                          {t.unlocked ? "Доступен" : `+ ${t.need}`}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
